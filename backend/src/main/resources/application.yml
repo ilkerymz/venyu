@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: venyu
+  datasource:
+    url: jdbc:postgresql://localhost:5433/venyu
+    username: venyu
+    password: venyu
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,modulith
