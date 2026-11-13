@@ -24,3 +24,10 @@ Venyu: mekan + organizatör + katılımcı buluşturan sosyal etkinlik platformu
 ## Git
 - `main` korumalı: her değişiklik branch + PR + yeşil CI ile.
 - Conventional Commits: feat, fix, docs, ci, chore, refactor, test.
+
+## Lombok kuralları
+- Entity: sadece `@Getter` ve `@NoArgsConstructor(access = AccessLevel.PROTECTED)`. Gerekirse alan bazında `@Getter(AccessLevel.NONE)`.
+- Entity'de yasak: `@Data`, `@Setter`, `@EqualsAndHashCode`, `@ToString`, `@Builder`. Entity'ler factory metot ve davranış metotlarıyla değişir.
+- Service / controller: `@RequiredArgsConstructor` (constructor injection, `final` alanlar).
+- Loglama: `@Slf4j`.
+- DTO / request / response: Java `record`, Lombok değil.
