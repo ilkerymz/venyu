@@ -1,2 +1,15 @@
 services:
-  
+  postgres:
+    image: postgres:17
+    container_name: venyu-postgres
+    environment:
+      POSTGRES_DB: venyu
+      POSTGRES_USER: venyu
+      POSTGRES_PASSWORD: venyu
+    ports:
+      - "5433:5432"
+    volumes:
+      - venyu-pgdata:/var/lib/postgresql/data
+
+volumes:
+  venyu-pgdata:
