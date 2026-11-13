@@ -12,6 +12,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.Instant;
 import java.util.HashSet;
@@ -21,6 +24,8 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "users")
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User {
 
     @Id
@@ -49,10 +54,8 @@ public class User {
     @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "role", nullable = false)
     @Enumerated(EnumType.STRING)
+    @Getter(AccessLevel.NONE)
     private Set<Role> roles = new HashSet<>();
-
-    protected User() {
-    }
 
     public static User register(String email, String passwordHash, String displayName) {
         User user = new User();
@@ -74,18 +77,6 @@ public class User {
 
     public boolean isPhoneVerified() {
         return phoneVerifiedAt != null;
-    }
-
-    public UUID getId() {
-        return id;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public String getDisplayName() {
-        return displayName;
     }
 
     public Set<Role> getRoles() {
