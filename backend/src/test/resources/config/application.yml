@@ -1,0 +1,3 @@
+venyu:
+  jwt:
+    secret: test-secret-en-az-32-karakter-olmali-0123456789
