@@ -1,5 +1,7 @@
-package com.venyu.identity.internal;
+package com.venyu.identity.internal.web;
 
+import com.venyu.identity.internal.domain.User;
+import com.venyu.identity.internal.service.UserRegistrationService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

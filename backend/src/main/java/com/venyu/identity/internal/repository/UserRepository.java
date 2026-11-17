@@ -1,5 +1,6 @@
-package com.venyu.identity.internal;
+package com.venyu.identity.internal.repository;
 
+import com.venyu.identity.internal.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

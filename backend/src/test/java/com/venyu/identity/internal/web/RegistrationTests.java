@@ -1,6 +1,8 @@
-package com.venyu.identity.internal;
+package com.venyu.identity.internal.web;
 
 import com.venyu.TestcontainersConfiguration;
+import com.venyu.identity.internal.domain.User;
+import com.venyu.identity.internal.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;

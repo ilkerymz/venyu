@@ -1,4 +1,4 @@
-package com.venyu.identity.internal;
+package com.venyu.identity.internal.domain;
 
 public enum Role {
     PARTICIPANT,

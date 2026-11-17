@@ -1,6 +1,8 @@
-package com.venyu.identity.internal;
+package com.venyu.identity.internal.repository;
 
 import com.venyu.TestcontainersConfiguration;
+import com.venyu.identity.internal.domain.Role;
+import com.venyu.identity.internal.domain.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
