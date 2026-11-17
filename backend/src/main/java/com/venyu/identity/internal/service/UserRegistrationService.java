@@ -1,5 +1,8 @@
-package com.venyu.identity.internal;
+package com.venyu.identity.internal.service;
 
+import com.venyu.identity.internal.exception.EmailAlreadyRegisteredException;
+import com.venyu.identity.internal.domain.User;
+import com.venyu.identity.internal.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -13,7 +16,7 @@ import java.nio.charset.StandardCharsets;
 
 @Service
 @RequiredArgsConstructor
-class UserRegistrationService {
+public class UserRegistrationService {
 
     private static final int BCRYPT_MAX_BYTES = 72;
 
@@ -21,7 +24,7 @@ class UserRegistrationService {
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
-    User register(String email, String rawPassword, String displayName) {
+    public User register(String email, String rawPassword, String displayName) {
         if (rawPassword.getBytes(StandardCharsets.UTF_8).length > BCRYPT_MAX_BYTES) {
             throw new ErrorResponseException(HttpStatus.BAD_REQUEST,
                     ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Şifre çok uzun."), null);
