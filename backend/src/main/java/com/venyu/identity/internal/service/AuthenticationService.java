@@ -7,6 +7,7 @@ import com.venyu.identity.internal.exception.InvalidRefreshTokenException;
 import com.venyu.identity.internal.repository.RefreshTokenRepository;
 import com.venyu.identity.internal.repository.UserRepository;
 import com.venyu.identity.internal.service.TokenService.IssuedTokens;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +17,7 @@ import java.time.Instant;
 import java.util.Optional;
 
 @Service
+@Slf4j
 public class AuthenticationService {
 
     private static final int BCRYPT_MAX_BYTES = 72;
@@ -65,7 +67,10 @@ public class AuthenticationService {
         // Revoke edilmemiş olsaydı yukarıda kazanırdık: revoke edilmişse bu bir reuse.
         refreshTokens.findByTokenHash(tokenHash)
                 .filter(token -> token.getRevokedAt() != null)
-                .ifPresent(token -> refreshTokens.revokeAllForUser(token.getUserId(), now));
+                .ifPresent(token -> {
+                    log.warn("Refresh token reuse detected, revoking all sessions for user {}", token.getUserId());
+                    refreshTokens.revokeAllForUser(token.getUserId(), now);
+                });
 
         throw new InvalidRefreshTokenException();
     }
