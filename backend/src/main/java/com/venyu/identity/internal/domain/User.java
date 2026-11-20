@@ -81,6 +81,10 @@ public class User {
         }
     }
 
+    public void changePassword(String newPasswordHash) {
+        this.passwordHash = newPasswordHash;
+    }
+
     public boolean isPhoneVerified() {
         return phoneVerifiedAt != null;
     }
