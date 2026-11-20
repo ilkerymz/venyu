@@ -102,6 +102,23 @@ class LoginTests {
                 .isNotEqualTo(refreshToken);
     }
 
+    @Test
+    void loginIgnoresInvalidBearerHeader() throws Exception {
+        mvc.perform(post("/auth/login")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer expired-or-garbage")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"email": "%s", "password": "%s"}
+                                """.formatted(EMAIL, PASSWORD)))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void protectedEndpointStillRejectsInvalidBearerToken() throws Exception {
+        mvc.perform(get("/me").header(HttpHeaders.AUTHORIZATION, "Bearer expired-or-garbage"))
+                .andExpect(status().isUnauthorized());
+    }
+
     private ResultActions login(String email, String password) throws Exception {
         return mvc.perform(post("/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
