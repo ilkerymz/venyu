@@ -1,0 +1,48 @@
+package com.venyu.identity.internal.domain;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+import java.time.Instant;
+import java.util.UUID;
+
+@Entity
+@Table(name = "password_reset_tokens")
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class PasswordResetToken {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
+
+    @Column(nullable = false, updatable = false)
+    private UUID userId;
+
+    @Column(nullable = false, updatable = false)
+    private String tokenHash;
+
+    @Column(nullable = false, updatable = false)
+    private Instant expiresAt;
+
+    private Instant consumedAt;
+
+    @Column(nullable = false, updatable = false)
+    private Instant createdAt;
+
+    public static PasswordResetToken issue(UUID userId, String tokenHash, Instant expiresAt) {
+        PasswordResetToken token = new PasswordResetToken();
+        token.userId = userId;
+        token.tokenHash = tokenHash;
+        token.expiresAt = expiresAt;
+        token.createdAt = Instant.now();
+        return token;
+    }
+}

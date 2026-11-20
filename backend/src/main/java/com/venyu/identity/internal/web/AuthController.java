@@ -1,10 +1,7 @@
 package com.venyu.identity.internal.web;
 
 import com.venyu.identity.internal.domain.User;
-import com.venyu.identity.internal.service.AuthenticationService;
-import com.venyu.identity.internal.service.EmailVerificationService;
-import com.venyu.identity.internal.service.TokenService;
-import com.venyu.identity.internal.service.UserRegistrationService;
+import com.venyu.identity.internal.service.*;
 import com.venyu.identity.internal.web.dto.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +20,7 @@ class AuthController {
     private final UserRegistrationService registrationService;
     private final AuthenticationService authenticationService;
     private final EmailVerificationService emailVerificationService;
+    private final PasswordResetService passwordResetService;
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
@@ -51,6 +49,18 @@ class AuthController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void verifyEmail(@Valid @RequestBody VerifyEmailRequest request) {
         emailVerificationService.verify(request.token());
+    }
+
+    @PostMapping("/password-reset/request")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    void requestPasswordReset(@Valid @RequestBody PasswordResetRequest request) {
+        passwordResetService.requestReset(request.email());
+    }
+
+    @PostMapping("/password-reset/confirm")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    void confirmPasswordReset(@Valid @RequestBody PasswordResetConfirmRequest request) {
+        passwordResetService.resetPassword(request.token(), request.newPassword());
     }
 
     private static TokenResponse toResponse(TokenService.IssuedTokens tokens) {

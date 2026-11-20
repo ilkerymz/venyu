@@ -20,7 +20,6 @@ import java.util.Optional;
 @Slf4j
 public class AuthenticationService {
 
-    private static final int BCRYPT_MAX_BYTES = 72;
 
     private final UserRepository users;
     private final PasswordEncoder passwordEncoder;
@@ -39,7 +38,7 @@ public class AuthenticationService {
 
     @Transactional
     public IssuedTokens login(String email, String rawPassword) {
-        if (rawPassword.getBytes(StandardCharsets.UTF_8).length > BCRYPT_MAX_BYTES) {
+        if (PasswordRules.exceedsBcryptLimit(rawPassword)) {
             throw new InvalidCredentialsException();
         }
 
