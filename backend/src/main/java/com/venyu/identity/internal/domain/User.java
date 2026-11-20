@@ -89,6 +89,11 @@ public class User {
         return phoneVerifiedAt != null;
     }
 
+    public void verifyPhone(String phone, Instant now) {
+        this.phone = phone;
+        this.phoneVerifiedAt = now;
+    }
+
     public Set<Role> getRoles() {
         return Set.copyOf(roles);
     }
