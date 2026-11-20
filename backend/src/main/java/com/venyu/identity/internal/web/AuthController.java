@@ -2,6 +2,7 @@ package com.venyu.identity.internal.web;
 
 import com.venyu.identity.internal.domain.User;
 import com.venyu.identity.internal.service.AuthenticationService;
+import com.venyu.identity.internal.service.EmailVerificationService;
 import com.venyu.identity.internal.service.TokenService;
 import com.venyu.identity.internal.service.UserRegistrationService;
 import com.venyu.identity.internal.web.dto.*;
@@ -21,6 +22,7 @@ class AuthController {
 
     private final UserRegistrationService registrationService;
     private final AuthenticationService authenticationService;
+    private final EmailVerificationService emailVerificationService;
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
@@ -43,6 +45,12 @@ class AuthController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void logout(@Valid @RequestBody RefreshRequest request) {
         authenticationService.logout(request.refreshToken());
+    }
+
+    @PostMapping("/verify-email")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    void verifyEmail(@Valid @RequestBody VerifyEmailRequest request) {
+        emailVerificationService.verify(request.token());
     }
 
     private static TokenResponse toResponse(TokenService.IssuedTokens tokens) {

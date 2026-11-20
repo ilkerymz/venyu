@@ -75,6 +75,12 @@ public class User {
         return emailVerifiedAt != null;
     }
 
+    public void verifyEmail(Instant now) {
+        if (emailVerifiedAt == null) {
+            emailVerifiedAt = now;
+        }
+    }
+
     public boolean isPhoneVerified() {
         return phoneVerifiedAt != null;
     }
