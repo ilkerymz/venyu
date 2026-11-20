@@ -1,9 +1,12 @@
 package com.venyu.venue.internal.service;
 
+import com.venyu.venue.internal.domain.BookingStatus;
 import com.venyu.venue.internal.domain.VenueSlot;
 import com.venyu.venue.internal.exception.InvalidSlotException;
+import com.venyu.venue.internal.exception.SlotHasBookingsException;
 import com.venyu.venue.internal.exception.SlotNotFoundException;
 import com.venyu.venue.internal.exception.SlotOverlapException;
+import com.venyu.venue.internal.repository.VenueBookingRepository;
 import com.venyu.venue.internal.repository.VenueSlotRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -13,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -24,6 +28,7 @@ public class VenueSlotService {
 
     private final VenueSlotRepository slots;
     private final VenueService venueService;
+    private final VenueBookingRepository bookings;
 
     @Transactional
     public VenueSlot open(UUID userId, UUID venueId, Instant startsAt, Instant endsAt) {
@@ -42,15 +47,24 @@ public class VenueSlotService {
     public void close(UUID userId, UUID venueId, UUID slotId) {
         venueService.getOwnedVenue(userId, venueId);
         VenueSlot slot = slots.findByIdAndVenueId(slotId, venueId).orElseThrow(SlotNotFoundException::new);
+        if (bookings.existsBySlotId(slotId)) {
+            throw new SlotHasBookingsException();
+        }
         slots.delete(slot);
     }
 
     @Transactional(readOnly = true)
-    public List<VenueSlot> list(UUID venueId, Instant from, Instant to) {
+    public List<SlotAvailability> list(UUID venueId, Instant from, Instant to) {
         venueService.get(venueId);
         Instant start = from != null ? from : Instant.now();
         Instant end = to != null ? to : start.plus(DEFAULT_LIST_RANGE);
-        return slots.findInRange(venueId, start, end);
+        Set<UUID> taken = bookings.findSlotIdsByVenueIdAndStatusIn(venueId, BookingStatus.ACTIVE);
+        return slots.findInRange(venueId, start, end).stream()
+                .map(slot -> new SlotAvailability(slot, !taken.contains(slot.getId())))
+                .toList();
+    }
+
+    public record SlotAvailability(VenueSlot slot, boolean available) {
     }
 
     private static void validate(Instant startsAt, Instant endsAt) {
