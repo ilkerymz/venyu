@@ -79,7 +79,7 @@ class LoginTests {
     }
 
     @Test
-    void meWithAccessTokenReturnsUserFromToken() throws Exception {
+    void meWithAccessTokenReturnsCurrentUser() throws Exception {
         String accessToken = JsonPath.read(loginAndGetBody(), "$.accessToken");
 
         mvc.perform(get("/me").header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken))
