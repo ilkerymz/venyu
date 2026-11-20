@@ -4,10 +4,7 @@ import com.venyu.identity.internal.domain.User;
 import com.venyu.identity.internal.service.AuthenticationService;
 import com.venyu.identity.internal.service.TokenService;
 import com.venyu.identity.internal.service.UserRegistrationService;
-import com.venyu.identity.internal.web.dto.LoginRequest;
-import com.venyu.identity.internal.web.dto.RegisterRequest;
-import com.venyu.identity.internal.web.dto.RegisterResponse;
-import com.venyu.identity.internal.web.dto.TokenResponse;
+import com.venyu.identity.internal.web.dto.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -34,7 +31,21 @@ class AuthController {
 
     @PostMapping("/login")
     TokenResponse login(@Valid @RequestBody LoginRequest request) {
-        TokenService.IssuedTokens tokens = authenticationService.login(request.email(), request.password());
+        return toResponse(authenticationService.login(request.email(), request.password()));
+    }
+
+    @PostMapping("/refresh")
+    TokenResponse refresh(@Valid @RequestBody RefreshRequest request) {
+        return toResponse(authenticationService.refresh(request.refreshToken()));
+    }
+
+    @PostMapping("/logout")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    void logout(@Valid @RequestBody RefreshRequest request) {
+        authenticationService.logout(request.refreshToken());
+    }
+
+    private static TokenResponse toResponse(TokenService.IssuedTokens tokens) {
         return new TokenResponse(tokens.accessToken(), tokens.refreshToken(), tokens.expiresInSeconds());
     }
 
