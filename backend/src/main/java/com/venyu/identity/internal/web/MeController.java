@@ -2,12 +2,16 @@ package com.venyu.identity.internal.web;
 
 import com.venyu.identity.internal.domain.Role;
 import com.venyu.identity.internal.domain.User;
+import com.venyu.identity.internal.service.RoleService;
 import com.venyu.identity.internal.service.UserProfileService;
 import com.venyu.identity.internal.web.dto.MeResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.UUID;
@@ -17,6 +21,7 @@ import java.util.UUID;
 class MeController {
 
     private final UserProfileService userProfileService;
+    private final RoleService roleService;
 
     @GetMapping("/me")
     MeResponse me(@AuthenticationPrincipal Jwt jwt) {
@@ -29,5 +34,11 @@ class MeController {
                 user.isEmailVerified(),
                 user.getPhone(),
                 user.isPhoneVerified());
+    }
+
+    @PostMapping("/me/roles/organizer")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    void becomeOrganizer(@AuthenticationPrincipal Jwt jwt) {
+        roleService.becomeOrganizer(UUID.fromString(jwt.getSubject()));
     }
 }

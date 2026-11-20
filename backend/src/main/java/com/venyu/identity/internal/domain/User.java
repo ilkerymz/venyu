@@ -97,4 +97,8 @@ public class User {
     public Set<Role> getRoles() {
         return Set.copyOf(roles);
     }
+
+    public void grantRole(Role role) {
+        roles.add(role);
+    }
 }
