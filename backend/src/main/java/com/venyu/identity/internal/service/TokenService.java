@@ -16,16 +16,13 @@ import org.springframework.stereotype.Service;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.time.Instant;
-import java.util.Base64;
 import java.util.HexFormat;
 
 @Service
 @RequiredArgsConstructor
 public class TokenService {
 
-    private static final SecureRandom RANDOM = new SecureRandom();
 
     private final JwtEncoder jwtEncoder;
     private final JwtProperties properties;
@@ -51,12 +48,9 @@ public class TokenService {
     }
 
     private String issueRefreshToken(User user) {
-        byte[] bytes = new byte[32];
-        RANDOM.nextBytes(bytes);
-        String rawToken = Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
-
+        String rawToken = SecureTokens.generate();
         Instant expiresAt = Instant.now().plus(properties.refreshTokenTtl());
-        refreshTokens.save(RefreshToken.issue(user.getId(), hash(rawToken), expiresAt));
+        refreshTokens.save(RefreshToken.issue(user.getId(), SecureTokens.hash(rawToken), expiresAt));
         return rawToken;
     }
 

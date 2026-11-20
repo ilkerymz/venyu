@@ -23,6 +23,9 @@ Venyu: mekan + organizatör + katılımcı buluşturan sosyal etkinlik platformu
 - Hatalar RFC 9457 Problem Details formatında: `ErrorResponseException` türevleri, modülün `exception/` paketinde.
 - Kimlik doğrulama: JWT access token (HS256, 15 dk) + opaque refresh token (DB'de SHA-256 hash). Detaylar ADR-003'te.
 - Konfigürasyon değerleri `@ConfigurationProperties` record'larıyla okunur (`@Validated`); secret'lar env değişkeninden gelir, repoya yazılmaz.
+- Modüller arası event'ler: yayınlayan modülün kök paketinde (public API) `record` olarak tanımlanır; dinleyen modülde `@ApplicationModuleListener` ile (commit sonrası, async, kendi transaction'ında) işlenir. `spring.modulith.events.completion-mode: delete`.
+- Tek kullanımlık token'lar (refresh, e-posta doğrulama, şifre sıfırlama): `SecureTokens.generate()` + DB'de `SecureTokens.hash()`; tüketim koşullu atomik UPDATE ile. Detaylar ADR-003 ve ADR-004'te.
+- Yan etkisi olan işlemler `GET` ile yapılmaz (örn. e-posta doğrulama link'i frontend sayfası açar, o sayfa `POST` atar).
 
 ## Kod yerleşimi
 Modülün kök paketi (`com.venyu.<modul>`) public API'dir. İç sınıflar `internal/` altında, katmanlara ayrılmış:

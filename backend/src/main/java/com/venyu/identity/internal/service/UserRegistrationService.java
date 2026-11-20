@@ -22,6 +22,7 @@ public class UserRegistrationService {
 
     private final UserRepository users;
     private final PasswordEncoder passwordEncoder;
+    private final EmailVerificationService emailVerificationService;
 
     @Transactional
     public User register(String email, String rawPassword, String displayName) {
@@ -32,10 +33,13 @@ public class UserRegistrationService {
         if (users.existsByEmail(User.normalizeEmail(email))) {
             throw new EmailAlreadyRegisteredException();
         }
+        User user;
         try {
-            return users.saveAndFlush(User.register(email, passwordEncoder.encode(rawPassword), displayName));
+            user = users.saveAndFlush(User.register(email, passwordEncoder.encode(rawPassword), displayName));
         } catch (DataIntegrityViolationException e) {
             throw new EmailAlreadyRegisteredException();
         }
+        emailVerificationService.requestVerification(user);
+        return user;
     }
 }
