@@ -16,6 +16,7 @@ export function PhoneRow({ current }: { current?: string }) {
                 <Button
                     size="sm"
                     variant={open ? "ghost" : "outline"}
+                    aria-label={open ? undefined : "Telefonu doğrula"}
                     aria-expanded={open}
                     aria-controls="phone-verification"
                     onClick={() => setOpen(!open)}
