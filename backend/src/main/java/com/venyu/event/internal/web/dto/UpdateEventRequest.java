@@ -9,9 +9,10 @@ import jakarta.validation.constraints.Size;
 public record UpdateEventRequest(
     @NotBlank @Size(max = 150) String title,
     @Size(max = 5000) String description,
-    @NotNull EventVisibility visibility) {
+    @NotNull EventVisibility visibility,
+    Boolean requiresAccount) {
 
     public EventDetails toDetails() {
-        return new EventDetails(title, description, visibility);
+        return new EventDetails(title, description, visibility, Boolean.TRUE.equals(requiresAccount));
     }
 }

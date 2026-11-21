@@ -14,6 +14,7 @@ public record PublicEventResponse(
     String slug,
     String title,
     String description,
+    boolean requiresAccount,
     UUID venueId,
     String customAddress,
     Instant startsAt,
@@ -22,9 +23,9 @@ public record PublicEventResponse(
 
     public static PublicEventResponse from(EventWithTickets view) {
         Event event = view.event();
-        return new PublicEventResponse(event.getSlug(), event.getTitle(), event.getDescription(), event.getVenueId(),
-            event.getCustomAddress(), event.getStartsAt(), event.getEndsAt(),
-            view.tickets().stream().map(PublicTicket::from).toList());
+        return new PublicEventResponse(event.getSlug(), event.getTitle(), event.getDescription(),
+            event.isRequiresAccount(), event.getVenueId(), event.getCustomAddress(), event.getStartsAt(),
+            event.getEndsAt(), view.tickets().stream().map(PublicTicket::from).toList());
     }
 
     public record PublicTicket(UUID id, String name, String description, BigDecimal price, String currency,

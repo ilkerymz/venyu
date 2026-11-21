@@ -1,5 +1,6 @@
 package com.venyu.event.internal.service;
 
+import com.venyu.event.ReservationContext;
 import com.venyu.event.TicketInventory;
 import com.venyu.event.TicketReservation;
 import com.venyu.event.internal.domain.Event;
@@ -25,7 +26,7 @@ class TicketInventoryService implements TicketInventory {
 
     @Override
     @Transactional
-    public TicketReservation reserve(UUID eventId, UUID ticketTypeId) {
+    public TicketReservation reserve(UUID eventId, UUID ticketTypeId, ReservationContext context) {
         Optional<Event> found = events.findById(eventId);
         if (found.isEmpty()) {
             return new TicketReservation.NotFound();
@@ -34,8 +35,11 @@ class TicketInventoryService implements TicketInventory {
         if (event.getStatus() != EventStatus.PUBLISHED) {
             return new TicketReservation.NotAvailable("Etkinlik kayda açık değil.");
         }
-        if (event.getVisibility() == EventVisibility.INVITE_ONLY) {
+        if (event.getVisibility() == EventVisibility.INVITE_ONLY && !context.withInvitation()) {
             return new TicketReservation.NotAvailable("Bu etkinliğe sadece davetle katılınabilir.");
+        }
+        if (event.isRequiresAccount() && context.asGuest()) {
+            return new TicketReservation.NotAvailable("Bu etkinliğe katılmak için hesap gerekli.");
         }
         if (!event.getStartsAt().isAfter(Instant.now())) {
             return new TicketReservation.NotAvailable("Etkinlik başladı veya sona erdi.");

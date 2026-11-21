@@ -8,7 +8,7 @@ import java.util.UUID;
  */
 public interface TicketInventory {
 
-    TicketReservation reserve(UUID eventId, UUID ticketTypeId);
+    TicketReservation reserve(UUID eventId, UUID ticketTypeId, ReservationContext context);
 
     void release(UUID ticketTypeId);
 }

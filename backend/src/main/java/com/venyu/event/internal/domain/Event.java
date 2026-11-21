@@ -65,6 +65,9 @@ public class Event {
     @Column(updatable = false)
     private Integer capacityLimit;
 
+    // true: sadece hesabı olanlar kayıt olabilir, misafir kaydı kapalı.
+    @Column(nullable = false)
+    private boolean requiresAccount;
 
     @Version
     private long version;
@@ -154,6 +157,7 @@ public class Event {
         this.title = details.title();
         this.description = details.description();
         this.visibility = details.visibility();
+        this.requiresAccount = details.requiresAccount();
         this.updatedAt = now;
     }
 }

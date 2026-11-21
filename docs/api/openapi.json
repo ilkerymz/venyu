@@ -182,7 +182,7 @@
     },
     "/bookings/{bookingId}/confirm" : {
       "post" : {
-        "operationId" : "confirm",
+        "operationId" : "confirm_1",
         "parameters" : [ {
           "in" : "path",
           "name" : "bookingId",
@@ -377,6 +377,74 @@
         "tags" : [ "event-controller" ]
       }
     },
+    "/events/{eventId}/invitations" : {
+      "get" : {
+        "operationId" : "list_3",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "eventId",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/InvitationResponse"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "invitation-controller" ]
+      },
+      "post" : {
+        "operationId" : "invite",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "eventId",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/InvitationRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/InvitationResponse"
+                  }
+                }
+              }
+            },
+            "description" : "Created"
+          }
+        },
+        "tags" : [ "invitation-controller" ]
+      }
+    },
     "/events/{eventId}/publish" : {
       "post" : {
         "operationId" : "publish",
@@ -421,6 +489,43 @@
             "application/json" : {
               "schema" : {
                 "$ref" : "#/components/schemas/RegistrationRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RegistrationResponse"
+                }
+              }
+            },
+            "description" : "Created"
+          }
+        },
+        "tags" : [ "registration-controller" ]
+      }
+    },
+    "/events/{eventId}/registrations/guest" : {
+      "post" : {
+        "operationId" : "registerGuest",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "eventId",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/GuestRegistrationRequest"
               }
             }
           },
@@ -577,6 +682,90 @@
         "tags" : [ "ticket-type-controller" ]
       }
     },
+    "/invitations/accept" : {
+      "post" : {
+        "operationId" : "accept",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/AcceptInvitationRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RegistrationResponse"
+                }
+              }
+            },
+            "description" : "Created"
+          }
+        },
+        "tags" : [ "invitation-controller" ]
+      }
+    },
+    "/invitations/accept/guest" : {
+      "post" : {
+        "operationId" : "acceptAsGuest",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/AcceptInvitationAsGuestRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RegistrationResponse"
+                }
+              }
+            },
+            "description" : "Created"
+          }
+        },
+        "tags" : [ "invitation-controller" ]
+      }
+    },
+    "/invitations/preview" : {
+      "post" : {
+        "operationId" : "preview",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/InvitationTokenRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvitationPreviewResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "invitation-controller" ]
+      }
+    },
     "/me" : {
       "get" : {
         "operationId" : "me",
@@ -709,6 +898,34 @@
           }
         },
         "tags" : [ "me-controller" ]
+      }
+    },
+    "/registrations/confirm" : {
+      "post" : {
+        "operationId" : "confirm",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ConfirmRegistrationRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RegistrationResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "registration-controller" ]
       }
     },
     "/registrations/{registrationId}/cancel" : {
@@ -1042,6 +1259,39 @@
   },
   "components" : {
     "schemas" : {
+      "AcceptInvitationAsGuestRequest" : {
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "type" : "string",
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "ticketTypeId" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "token" : {
+            "type" : "string",
+            "minLength" : 1
+          }
+        },
+        "required" : [ "name", "ticketTypeId", "token" ]
+      },
+      "AcceptInvitationRequest" : {
+        "type" : "object",
+        "properties" : {
+          "ticketTypeId" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "token" : {
+            "type" : "string",
+            "minLength" : 1
+          }
+        },
+        "required" : [ "ticketTypeId", "token" ]
+      },
       "BookingResponse" : {
         "type" : "object",
         "properties" : {
@@ -1074,6 +1324,16 @@
           }
         }
       },
+      "ConfirmRegistrationRequest" : {
+        "type" : "object",
+        "properties" : {
+          "token" : {
+            "type" : "string",
+            "minLength" : 1
+          }
+        },
+        "required" : [ "token" ]
+      },
       "CreateEventRequest" : {
         "type" : "object",
         "properties" : {
@@ -1090,6 +1350,9 @@
           "endsAt" : {
             "type" : "string",
             "format" : "date-time"
+          },
+          "requiresAccount" : {
+            "type" : "boolean"
           },
           "startsAt" : {
             "type" : "string",
@@ -1136,6 +1399,9 @@
             "type" : "string",
             "format" : "date-time"
           },
+          "requiresAccount" : {
+            "type" : "boolean"
+          },
           "slug" : {
             "type" : "string"
           },
@@ -1164,6 +1430,27 @@
           }
         }
       },
+      "GuestRegistrationRequest" : {
+        "type" : "object",
+        "properties" : {
+          "email" : {
+            "type" : "string",
+            "format" : "email",
+            "maxLength" : 254,
+            "minLength" : 0
+          },
+          "name" : {
+            "type" : "string",
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "ticketTypeId" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        },
+        "required" : [ "email", "name", "ticketTypeId" ]
+      },
       "HoldRequest" : {
         "type" : "object",
         "properties" : {
@@ -1173,6 +1460,92 @@
             "minLength" : 0
           }
         }
+      },
+      "InvitationPreviewResponse" : {
+        "type" : "object",
+        "properties" : {
+          "email" : {
+            "type" : "string"
+          },
+          "endsAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "eventSlug" : {
+            "type" : "string"
+          },
+          "eventTitle" : {
+            "type" : "string"
+          },
+          "requiresAccount" : {
+            "type" : "boolean"
+          },
+          "startsAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "status" : {
+            "type" : "string",
+            "enum" : [ "PENDING", "ACCEPTED" ]
+          },
+          "tickets" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/TicketOffer"
+            }
+          }
+        }
+      },
+      "InvitationRequest" : {
+        "type" : "object",
+        "properties" : {
+          "emails" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string",
+              "format" : "email",
+              "maxLength" : 254,
+              "minLength" : 0
+            },
+            "maxItems" : 100,
+            "minItems" : 0
+          }
+        },
+        "required" : [ "emails" ]
+      },
+      "InvitationResponse" : {
+        "type" : "object",
+        "properties" : {
+          "acceptedAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "createdAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "email" : {
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "status" : {
+            "type" : "string",
+            "enum" : [ "PENDING", "ACCEPTED" ]
+          }
+        }
+      },
+      "InvitationTokenRequest" : {
+        "type" : "object",
+        "properties" : {
+          "token" : {
+            "type" : "string",
+            "minLength" : 1
+          }
+        },
+        "required" : [ "token" ]
       },
       "LoginRequest" : {
         "type" : "object",
@@ -1281,6 +1654,9 @@
           "endsAt" : {
             "type" : "string",
             "format" : "date-time"
+          },
+          "requiresAccount" : {
+            "type" : "boolean"
           },
           "slug" : {
             "type" : "string"
@@ -1397,6 +1773,10 @@
             "type" : "string",
             "format" : "uuid"
           },
+          "expiresAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
           "id" : {
             "type" : "string",
             "format" : "uuid"
@@ -1446,6 +1826,30 @@
           "venueId" : {
             "type" : "string",
             "format" : "uuid"
+          }
+        }
+      },
+      "TicketOffer" : {
+        "type" : "object",
+        "properties" : {
+          "currency" : {
+            "type" : "string"
+          },
+          "description" : {
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "price" : {
+            "type" : "number"
+          },
+          "soldOut" : {
+            "type" : "boolean"
           }
         }
       },
@@ -1530,6 +1934,9 @@
             "type" : "string",
             "maxLength" : 5000,
             "minLength" : 0
+          },
+          "requiresAccount" : {
+            "type" : "boolean"
           },
           "title" : {
             "type" : "string",

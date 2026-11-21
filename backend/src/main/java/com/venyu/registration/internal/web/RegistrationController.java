@@ -1,6 +1,8 @@
 package com.venyu.registration.internal.web;
 
 import com.venyu.registration.internal.service.RegistrationService;
+import com.venyu.registration.internal.web.dto.ConfirmRegistrationRequest;
+import com.venyu.registration.internal.web.dto.GuestRegistrationRequest;
 import com.venyu.registration.internal.web.dto.RegistrationRequest;
 import com.venyu.registration.internal.web.dto.RegistrationResponse;
 import jakarta.validation.Valid;
@@ -40,6 +42,19 @@ class RegistrationController {
     @GetMapping("/me/registrations")
     List<RegistrationResponse> listMine(@AuthenticationPrincipal Jwt jwt) {
         return registrationService.listMine(userId(jwt)).stream().map(RegistrationResponse::from).toList();
+    }
+
+    // Hesapsız kayıt: koltuk 30 dk tutulur, e-postadaki link'le onaylanınca CONFIRMED olur.
+    @PostMapping("/events/{eventId}/registrations/guest")
+    @ResponseStatus(HttpStatus.CREATED)
+    RegistrationResponse registerGuest(@PathVariable UUID eventId, @Valid @RequestBody GuestRegistrationRequest request) {
+        return RegistrationResponse.from(
+            registrationService.registerGuest(eventId, request.ticketTypeId(), request.email(), request.name()));
+    }
+
+    @PostMapping("/registrations/confirm")
+    RegistrationResponse confirm(@Valid @RequestBody ConfirmRegistrationRequest request) {
+        return RegistrationResponse.from(registrationService.confirmGuest(request.token()));
     }
 
     private static UUID userId(Jwt jwt) {
