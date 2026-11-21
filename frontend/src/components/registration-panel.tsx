@@ -10,10 +10,22 @@ import { readAnswers } from "@/lib/form-answers";
 import { visibleFieldKeys } from "@/lib/form-visibility";
 import { formatPrice } from "@/lib/format";
 import { cn } from "@/lib/utils";
-import { registerAction } from "./actions";
+import { TicketPass } from "@/components/ticket-pass";
+
+/** Kayıt ve davet kabulü aynı paneli kullanır; sadece gönderilen action ve misafir alanları farklı. */
+export type RegisterState = {
+    errors?: string[];
+    /** Misafir kaydı: onay e-postası bu adrese gitti (30 dk). */
+    guestEmail?: string;
+    /** Bilet hemen hazırsa (davet kabulü) QR gösterilir. */
+    ticketCode?: string;
+};
 
 type Props = {
-    eventId: string;
+    action: (state: RegisterState, form: FormData) => Promise<RegisterState>;
+    /** "full": misafirden ad + e-posta; "name": e-posta davetten gelir, sadece ad. */
+    guestFields?: "full" | "name";
+    submitLabel?: string;
     tickets: PublicTicket[];
     fields: FormField[];
     isMember: boolean;
@@ -25,18 +37,31 @@ type Props = {
 const selectable = (t: PublicTicket) => !t.soldOut && (t.price ?? 0) === 0;
 
 export function RegistrationPanel({
-    eventId,
+    action,
+    guestFields = "full",
+    submitLabel = "Kayıt ol",
     tickets,
     fields,
     isMember,
     requiresAccount,
     loginHref,
 }: Props) {
-    const [state, dispatch, pending] = useActionState(registerAction.bind(null, eventId), {});
+    const [state, dispatch, pending] = useActionState(action, {});
     const open = tickets.filter(selectable);
     const [ticketTypeId, setTicketTypeId] = useState(open.length === 1 ? (open[0].id ?? "") : "");
     const [answers, setAnswers] = useState<Record<string, unknown>>({});
     const visible = visibleFieldKeys(fields, answers, ticketTypeId);
+
+    if (state.ticketCode) {
+        return (
+            <div className="grid gap-4">
+                <Notice>
+                    Kaydın tamam. Biletin ve kaydını yönetme bağlantısı e-postana da gönderildi.
+                </Notice>
+                <TicketPass code={state.ticketCode} status="CONFIRMED" />
+            </div>
+        );
+    }
 
     if (state.guestEmail) {
         return (
@@ -150,15 +175,17 @@ export function RegistrationPanel({
                         maxLength={100}
                         required
                     />
-                    <Field
-                        label="E-posta"
-                        name="guestEmail"
-                        type="email"
-                        autoComplete="email"
-                        maxLength={254}
-                        required
-                        hint="Onay bağlantısı ve biletin bu adrese gelir."
-                    />
+                    {guestFields === "full" && (
+                        <Field
+                            label="E-posta"
+                            name="guestEmail"
+                            type="email"
+                            autoComplete="email"
+                            maxLength={254}
+                            required
+                            hint="Onay bağlantısı ve biletin bu adrese gelir."
+                        />
+                    )}
                     <p className="text-sm text-muted-foreground">
                         Hesabın var mı?{" "}
                         <Link
@@ -173,7 +200,7 @@ export function RegistrationPanel({
 
             <FormErrors errors={state.errors} />
             <Button type="submit" size="lg" className="h-11" disabled={pending}>
-                {pending ? "Kaydediliyor…" : "Kayıt ol"}
+                {pending ? "Kaydediliyor…" : submitLabel}
             </Button>
         </form>
     );

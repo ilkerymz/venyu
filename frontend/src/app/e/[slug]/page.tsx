@@ -5,7 +5,8 @@ import { SiteHeader } from "@/components/site-header";
 import { eventDateParts, formatEventDay, formatTimeRange } from "@/lib/format";
 import { loadPublicEvent, loadRegistrationContext } from "./data";
 import { MyTicket } from "./my-ticket";
-import { RegistrationPanel } from "./registration-panel";
+import { RegistrationPanel } from "@/components/registration-panel";
+import { registerAction } from "./actions";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -124,7 +125,7 @@ export default async function PublicEventPage({ params }: Props) {
                                 />
                             ) : (
                                 <RegistrationPanel
-                                    eventId={event.id ?? ""}
+                                    action={registerAction.bind(null, event.id ?? "")}
                                     tickets={tickets}
                                     fields={registration.fields}
                                     isMember={registration.isMember}
