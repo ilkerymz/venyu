@@ -29,6 +29,8 @@ public class SecurityConfig {
                         .requestMatchers("/auth/**", "/actuator/health/**", "/error").permitAll()
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .requestMatchers(HttpMethod.GET, "/venues", "/venues/*", "/venues/*/slots").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/venues", "/venues/*", "/venues/*/slots",
+                                                                    "/events/by-slug/*").permitAll()
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
                 .build();

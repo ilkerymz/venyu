@@ -26,6 +26,8 @@ Venyu: mekan + organizatör + katılımcı buluşturan sosyal etkinlik platformu
 - Modüller arası event'ler: yayınlayan modülün kök paketinde (public API) `record` olarak tanımlanır; dinleyen modülde `@ApplicationModuleListener` ile (commit sonrası, async, kendi transaction'ında) işlenir. `spring.modulith.events.completion-mode: delete`.
 - Tek kullanımlık token'lar (refresh, e-posta doğrulama, şifre sıfırlama): `SecureTokens.generate()` + DB'de `SecureTokens.hash()`; tüketim koşullu atomik UPDATE ile. Detaylar ADR-003 ve ADR-004'te.
 - Yan etkisi olan işlemler `GET` ile yapılmaz (örn. e-posta doğrulama link'i frontend sayfası açar, o sayfa `POST` atar).
+- API dokümantasyonu: springdoc ile koddan üretilir (code-first). Spec `docs/api/openapi.json` olarak repoda versiyonlanır; `./mvnw verify` dosyayı günceller, CI güncel olmayan spec'te kırmızı olur. API'ye dokunan her PR spec değişikliğini de içerir. Swagger UI: `/swagger-ui.html` (prod'da kapatılacak).
+- Modüller arası iletişim: sorgu için senkron public API (modülün kök paketinde arayüz + record, uygulaması `internal`'da), "bir şey oldu" bildirimi için event (ADR-007).
 
 ## Kod yerleşimi
 Modülün kök paketi (`com.venyu.<modul>`) public API'dir. İç sınıflar `internal/` altında, katmanlara ayrılmış:
