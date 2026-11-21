@@ -278,7 +278,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/EventResponse"
+                  "$ref" : "#/components/schemas/PublicEventResponse"
                 }
               }
             },
@@ -402,6 +402,142 @@
           }
         },
         "tags" : [ "event-controller" ]
+      }
+    },
+    "/events/{eventId}/ticket-types" : {
+      "get" : {
+        "operationId" : "list_2",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "eventId",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/TicketTypeResponse"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "ticket-type-controller" ]
+      },
+      "post" : {
+        "operationId" : "add",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "eventId",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/TicketTypeRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TicketTypeResponse"
+                }
+              }
+            },
+            "description" : "Created"
+          }
+        },
+        "tags" : [ "ticket-type-controller" ]
+      }
+    },
+    "/events/{eventId}/ticket-types/{ticketTypeId}" : {
+      "delete" : {
+        "operationId" : "delete",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "eventId",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        }, {
+          "in" : "path",
+          "name" : "ticketTypeId",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        },
+        "tags" : [ "ticket-type-controller" ]
+      },
+      "put" : {
+        "operationId" : "update_2",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "eventId",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        }, {
+          "in" : "path",
+          "name" : "ticketTypeId",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/TicketTypeRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TicketTypeResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "ticket-type-controller" ]
       }
     },
     "/me" : {
@@ -1048,6 +1184,65 @@
         },
         "required" : [ "phone" ]
       },
+      "PublicEventResponse" : {
+        "type" : "object",
+        "properties" : {
+          "customAddress" : {
+            "type" : "string"
+          },
+          "description" : {
+            "type" : "string"
+          },
+          "endsAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "slug" : {
+            "type" : "string"
+          },
+          "startsAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "tickets" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/PublicTicket"
+            }
+          },
+          "title" : {
+            "type" : "string"
+          },
+          "venueId" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        }
+      },
+      "PublicTicket" : {
+        "type" : "object",
+        "properties" : {
+          "currency" : {
+            "type" : "string"
+          },
+          "description" : {
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "price" : {
+            "type" : "number"
+          },
+          "soldOut" : {
+            "type" : "boolean"
+          }
+        }
+      },
       "RefreshRequest" : {
         "type" : "object",
         "properties" : {
@@ -1131,6 +1326,65 @@
           "venueId" : {
             "type" : "string",
             "format" : "uuid"
+          }
+        }
+      },
+      "TicketTypeRequest" : {
+        "type" : "object",
+        "properties" : {
+          "capacity" : {
+            "type" : "integer",
+            "format" : "int32",
+            "maximum" : 100000,
+            "minimum" : 1
+          },
+          "description" : {
+            "type" : "string",
+            "maxLength" : 1000,
+            "minLength" : 0
+          },
+          "name" : {
+            "type" : "string",
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "price" : {
+            "type" : "number",
+            "minimum" : 0.00
+          }
+        },
+        "required" : [ "name", "price" ]
+      },
+      "TicketTypeResponse" : {
+        "type" : "object",
+        "properties" : {
+          "capacity" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "currency" : {
+            "type" : "string"
+          },
+          "description" : {
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "price" : {
+            "type" : "number"
+          },
+          "remaining" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "sold" : {
+            "type" : "integer",
+            "format" : "int32"
           }
         }
       },
