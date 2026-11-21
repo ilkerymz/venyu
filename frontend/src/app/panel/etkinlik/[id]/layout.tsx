@@ -1,87 +1,60 @@
-import { ExternalLink, MapPin } from "lucide-react";
-import Link from "next/link";
 import { Suspense } from "react";
-import { EventStatusBadge } from "@/components/event-status-badge";
+import { EventHero } from "@/components/event-hero";
+import { OrganizerBar } from "@/components/organizer-bar";
 import { SiteHeader } from "@/components/site-header";
-import { formatEventDay, formatTimeRange } from "@/lib/format";
-import { get as getVenue } from "@/api/generated/venue-controller/venue-controller";
-import { loadEventSummary } from "../../data";
-import { EventTabs } from "./event-tabs";
+import { loadEventSummary, loadVenue } from "../../data";
 
 type Props = { children: React.ReactNode; params: Promise<{ id: string }> };
 
 /**
- * Etkinlik yönetiminin ortak çerçevesi: başlık + sekmeler. Etkinlik bilgisi Suspense içinde
- * yüklenir; sekmeler ve iskelet anında görünür (instant navigation).
+ * Etkinlik yönetiminin çerçevesi, etkinlik sayfasıyla aynı yapı: üstte organizatör şeridi (sekmeler),
+ * altında bilet koçanı başlığı, en altta sekmenin içeriği. Şerit ve başlık Suspense içinde yüklenir;
+ * sekmeler arasında gezerken layout yeniden çizilmez, sadece içerik değişir.
  */
 export default function ManageEventLayout({ children, params }: Props) {
     return (
         <>
             <SiteHeader />
-            <main className="mx-auto max-w-6xl px-5 pt-6 pb-20 sm:px-8">
-                <Link
-                    href="/hesabim"
-                    className="text-sm text-muted-foreground underline-offset-4 hover:underline"
-                >
-                    Etkinliklerim
-                </Link>
-                <Suspense fallback={<HeaderSkeleton />}>
-                    <EventHeader params={params} />
-                </Suspense>
-                <EventTabs />
-                <div className="mt-8">{children}</div>
-            </main>
+            <Suspense fallback={<ChromeSkeleton />}>
+                <EventChrome params={params} />
+            </Suspense>
+            <main className="mx-auto w-full max-w-6xl px-5 pt-10 pb-20 sm:px-8">{children}</main>
         </>
     );
 }
 
-async function EventHeader({ params }: { params: Promise<{ id: string }> }) {
+async function EventChrome({ params }: { params: Promise<{ id: string }> }) {
     const event = await loadEventSummary((await params).id);
     // Mekanlı etkinlikte yer mekandan (ADR-007), adresli etkinlikte adresin ilk satırı.
-    const venue = event.venueId
-        ? await getVenue(event.venueId)
-              .then((r) => r.data)
-              .catch(() => undefined)
-        : undefined;
+    const venue = event.venueId ? await loadVenue(event.venueId) : undefined;
     const place = venue
         ? [venue.name, venue.district].filter(Boolean).join(", ")
         : event.customAddress?.split("\n")[0];
     return (
-        <div className="mt-2">
-            <div className="flex flex-wrap items-center gap-3">
-                <h1 className="text-4xl font-bold tracking-[-0.02em] [font-stretch:85%] sm:text-5xl">
-                    {event.title}
-                </h1>
-                <EventStatusBadge status={event.status} />
+        <>
+            <OrganizerBar event={event} className="pt-6" />
+            <div className="mx-auto max-w-6xl px-5 pt-4 sm:px-8 lg:pt-8">
+                <EventHero
+                    title={event.title ?? ""}
+                    startsAt={event.startsAt ?? ""}
+                    endsAt={event.endsAt ?? ""}
+                    place={place}
+                    className="lg:max-w-[calc(100%-25rem)]"
+                />
             </div>
-            <p className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-muted-foreground nums">
-                <span>
-                    {formatEventDay(event.startsAt ?? "")},{" "}
-                    {formatTimeRange(event.startsAt ?? "", event.endsAt ?? "")}
-                </span>
-                {place && (
-                    <span className="flex items-center gap-1.5">
-                        <MapPin className="size-4 shrink-0" aria-hidden />
-                        {place}
-                    </span>
-                )}
-                <Link
-                    href={`/e/${event.slug}`}
-                    className="flex items-center gap-1.5 text-primary underline-offset-4 hover:underline"
-                >
-                    <ExternalLink className="size-4 shrink-0" aria-hidden />
-                    Etkinlik sayfası
-                </Link>
-            </p>
-        </div>
+        </>
     );
 }
 
-function HeaderSkeleton() {
+function ChromeSkeleton() {
     return (
-        <div className="mt-2" aria-busy aria-label="Etkinlik yükleniyor">
-            <div className="h-12 w-80 max-w-full rounded-md bg-muted motion-safe:animate-pulse" />
-            <div className="mt-3 h-5 w-64 rounded-md bg-muted motion-safe:animate-pulse" />
+        <div
+            className="mx-auto max-w-6xl px-5 pt-6 sm:px-8"
+            aria-busy
+            aria-label="Etkinlik yükleniyor"
+        >
+            <div className="h-14 rounded-xl bg-muted motion-safe:animate-pulse" />
+            <div className="mt-4 h-40 rounded-xl bg-muted motion-safe:animate-pulse lg:mt-8 lg:max-w-[calc(100%-25rem)]" />
         </div>
     );
 }

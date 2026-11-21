@@ -1,13 +1,11 @@
 import { Button } from "@/components/ui/button";
-import { Wordmark } from "@/components/wordmark";
+import { SiteHeader } from "@/components/site-header";
 import Link from "next/link";
 
 export default function EventNotFound() {
     return (
         <>
-            <header className="mx-auto max-w-6xl px-5 py-5 sm:px-8">
-                <Wordmark />
-            </header>
+            <SiteHeader />
             <main className="mx-auto max-w-xl px-5 py-24 sm:px-8">
                 <h1 className="text-4xl font-bold tracking-tight">Bu etkinliği bulamadık</h1>
                 <p className="mt-4 text-lg leading-relaxed text-muted-foreground">
