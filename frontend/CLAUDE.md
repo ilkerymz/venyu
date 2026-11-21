@@ -66,6 +66,7 @@ src/
 
 - Route'a özel veri yükleme route klasöründe (`app/e/[slug]/data.ts`); her veri sayfasında `loading.tsx`, `error.tsx`, gerekiyorsa `not-found.tsx`.
 - Next.js 16'da `error.tsx` prop'u `retry` (`reset` değil); `notFound()`'u yakalayan `try/catch`'te `unstable_rethrow`.
+- Organizatör paneli `app/panel/` altında: veri `panel/data.ts` (401 → giriş, 403 → hesabım, 404 → notFound), işlemler `panel/actions.ts` (Server Action + `refresh()`); id'li action'lar `.bind(null, id)` ile.
 - Varsayılan Server Component; `"use client"` sadece etkileşim gereken yaprak bileşende.
 - Zaman: backend UTC döner, ekranda her zaman `Europe/Istanbul` (`lib/format.ts`). Para: `formatPrice(amount, currency)`.
 - shadcn bileşeni eklemek: `pnpm dlx shadcn@latest add <ad>`. Claude'un ortamında shadcn registry'si kapalı; orada kaynak `github.com/shadcn-ui/ui` → `apps/v4/registry/new-york-v4/ui/` altından kopyalanır, `from "cn"` → `from "@/lib/utils"`.
