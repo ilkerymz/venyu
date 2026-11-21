@@ -33,6 +33,14 @@ Kök `CLAUDE.md` genel kurallar için geçerli. Bu dosya `frontend/` içindeki �
 - Spec'te alanlar `required` işaretli değil (springdoc + record), üretilen tiplerde her alan opsiyonel: `??` ile varsayılan ver.
 - Üretilen fonksiyon adları controller metot adlarından (`get`, `get1`); import ederken anlamlı ada çevir (`get as getVenue`).
 
+## Oturum (ADR-011, FE-2)
+
+- Cookie'ler `venyu_at` (access, token'dan 30 sn önce düşer) ve `venyu_rt` (refresh, 30 gün); ikisi de httpOnly + SameSite=Lax (`src/auth/session.ts`).
+- `src/proxy.ts` her istekten önce gerekirse yeniler (`src/auth/refresh.ts`, tek refresh) ve korunan yolları (`PROTECTED_PATHS`) girişe yönlendirir. Yetki kontrolünün asıl yeri backend.
+- Kullanıcı adına sunucuda backend çağrısı: `me({ headers: await authHeaders() })` (`src/auth/server.ts`). Tarayıcıdan `/api/*` çağrılarına token'ı route handler ekler.
+- Formlar Server Action + `useActionState` (`src/auth/actions.ts`); hata mesajları `describeError`. React form'u action sonrası sıfırlar: hata durumunda değerleri `state.values` ile geri doldur (şifre hariç).
+- Kullanıcıya görünen yollar Türkçe (`/giris`, `/kayit`, `/hesabim`, `/sifremi-unuttum`); e-posta bağlantılarının yolları backend'den gelir (`/verify-email`, `/reset-password`, …).
+
 ## Tasarım sistemi
 
 - Vitrin: `/tasarim` (noindex). Yeni temel bileşen eklenince oraya da eklenir.
