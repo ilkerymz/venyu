@@ -8,6 +8,9 @@ Venyu: mekan + organizatör + katılımcı buluşturan sosyal etkinlik platformu
 - Sade kod, over-engineering yok. Mevcut görevin ihtiyacından fazlasını kurma.
 - Önemli mimari kararlar için `docs/adr/` altında ADR öner.
 
+## Frontend
+- Next.js uygulaması `frontend/` altında; kurallar `frontend/CLAUDE.md`'de. Frontend kodunu Claude yazar ve PR açar, kullanıcı review edip merge eder. Backend'de kodu kullanıcı yazar.
+
 ## Komutlar
 - DB: `docker compose up -d` (repo kökü, PostgreSQL port 5433)
 - Çalıştır: `cd backend && ./mvnw spring-boot:run` (`VENYU_JWT_SECRET` env değişkeni gerekli, en az 32 karakter; üretmek için `openssl rand -base64 48`)

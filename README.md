@@ -6,6 +6,7 @@ Mekanları, organizatörleri ve katılımcıları tek akışta buluşturan sosya
 
 ## Gereksinimler
 - Java 21 (Temurin önerilir, SDKMAN ile kurulabilir)
+- Node 22 ve pnpm (`corepack enable`), frontend için
 - Docker ve Docker Compose
 
 ## Lokal çalıştırma
@@ -17,6 +18,14 @@ cd backend
 curl localhost:8080/actuator/health
 ```
 IntelliJ'den çalıştırırken `VENYU_JWT_SECRET` değerini Run Configuration → Environment variables alanına ekle.
+
+## Frontend
+```bash
+cd frontend
+pnpm install
+pnpm dev                      # http://localhost:3000, tasarım sistemi: /tasarim
+```
+Ayrıntılar: `frontend/CLAUDE.md`.
 
 ## Test
 ```bash
