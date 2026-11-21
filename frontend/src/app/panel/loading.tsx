@@ -1,5 +1,9 @@
 import { Wordmark } from "@/components/wordmark";
 
+/**
+ * `/panel` altındaki bütün sayfaların Suspense sınırı (yönetim sekmeleri `useParams` okur);
+ * `/panel`'in kendisi Hesabım'a yönlenir ama bu dosya kalmalı.
+ */
 export default function Loading() {
     return (
         <>

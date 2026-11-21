@@ -20,10 +20,18 @@ import type {
 } from "@/api/generated/model";
 import { authHeaders } from "@/auth/server";
 
-export async function loadMyEvents() {
+/** Organizatörün etkinlikleri; Hesabım'da hem liste hem rezervasyon eşlemesi kullanır (istek başına tek). */
+export const loadMyEvents = cache(async () => {
     const headers = await authHeaders();
-    return guard(async () => (await listMyEvents({ headers })).data ?? [], "/panel");
-}
+    return guard(async () => (await listMyEvents({ headers })).data ?? [], "/hesabim");
+});
+
+/** Herkese açık mekan bilgisi; bulunamazsa `undefined` (liste bir mekan yüzünden düşmesin). */
+export const loadVenue = cache(async (venueId: string) =>
+    getVenue(venueId)
+        .then((r) => r.data)
+        .catch(() => undefined),
+);
 
 export async function loadManagedEvent(eventId: string) {
     const headers = await authHeaders();
@@ -86,7 +94,7 @@ const DAY = 24 * 60 * 60 * 1000;
 export async function loadMyBookings(): Promise<BookingView[]> {
     const headers = await authHeaders();
     const [bookings, events] = await Promise.all([
-        guard(async () => (await listMyBookings({ headers })).data ?? [], "/panel"),
+        guard(async () => (await listMyBookings({ headers })).data ?? [], "/hesabim"),
         loadMyEvents(),
     ]);
     const venueIds = [...new Set(bookings.map((b) => b.venueId ?? ""))];
@@ -95,9 +103,7 @@ export async function loadMyBookings(): Promise<BookingView[]> {
     const perVenue = await Promise.all(
         venueIds.map(async (id) => {
             const [venue, slots] = await Promise.all([
-                getVenue(id)
-                    .then((r) => r.data)
-                    .catch(() => undefined),
+                loadVenue(id),
                 listSlots(id, { from, to })
                     .then((r) => r.data ?? [])
                     .catch(() => []),

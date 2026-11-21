@@ -3,7 +3,8 @@ import type { Metadata } from "next";
 import { unstable_rethrow } from "next/navigation";
 import { SiteHeader } from "@/components/site-header";
 import { eventDateParts, formatEventDay, formatTimeRange } from "@/lib/format";
-import { loadPublicEvent, loadRegistrationContext } from "./data";
+import { loadOwnedEvent, loadPublicEvent, loadRegistrationContext } from "./data";
+import { OrganizerBar } from "./organizer-bar";
 import { MyTicket } from "./my-ticket";
 import { RegistrationPanel } from "@/components/registration-panel";
 import { registerAction } from "./actions";
@@ -28,7 +29,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function PublicEventPage({ params }: Props) {
-    const { event, venue } = await loadPublicEvent((await params).slug);
+    const { slug } = await params;
+    const [{ event, venue }, owned] = await Promise.all([
+        loadPublicEvent(slug),
+        loadOwnedEvent(slug),
+    ]);
     const startsAt = event.startsAt ?? "";
     const endsAt = event.endsAt ?? "";
     const date = eventDateParts(startsAt);
@@ -42,6 +47,7 @@ export default async function PublicEventPage({ params }: Props) {
     return (
         <>
             <SiteHeader />
+            {owned && <OrganizerBar event={owned} />}
 
             <main className="mx-auto grid max-w-6xl gap-10 px-5 pt-4 pb-20 sm:px-8 lg:grid-cols-[1fr_22rem] lg:gap-12 lg:pt-8">
                 <div className="min-w-0">
@@ -111,7 +117,12 @@ export default async function PublicEventPage({ params }: Props) {
                             {registration.myRegistration ? "Biletin" : "Katıl"}
                         </h2>
                         <div className="mt-4">
-                            {registration.myRegistration ? (
+                            {owned?.status === "DRAFT" ? (
+                                <p className="leading-relaxed text-muted-foreground">
+                                    Etkinlik taslak; sayfa sadece sana görünüyor. Yayınlayınca kayıt
+                                    açılır.
+                                </p>
+                            ) : registration.myRegistration ? (
                                 <MyTicket
                                     registrationId={registration.myRegistration.id ?? ""}
                                     ticketCode={registration.myRegistration.ticketCode}

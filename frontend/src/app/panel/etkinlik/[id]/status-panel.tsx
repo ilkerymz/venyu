@@ -61,7 +61,8 @@ function ShareLink({ slug, inviteOnly }: { slug: string; inviteOnly: boolean }) 
     if (inviteOnly) {
         return (
             <p className="leading-relaxed text-muted-foreground">
-                Yayında. Etkinlik sadece davetlilere açık; davet gönderme ekranı yakında burada.
+                Yayında. Etkinlik sadece davetlilere açık; katılımcılar Davetler sekmesinden
+                gönderdiğin bağlantıyla gelir.
             </p>
         );
     }

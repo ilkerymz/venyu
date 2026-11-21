@@ -1,4 +1,4 @@
-import { MapPin } from "lucide-react";
+import { ExternalLink, MapPin } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
 import { EventStatusBadge } from "@/components/event-status-badge";
@@ -20,7 +20,7 @@ export default function ManageEventLayout({ children, params }: Props) {
             <SiteHeader />
             <main className="mx-auto max-w-6xl px-5 pt-6 pb-20 sm:px-8">
                 <Link
-                    href="/panel"
+                    href="/hesabim"
                     className="text-sm text-muted-foreground underline-offset-4 hover:underline"
                 >
                     Etkinliklerim
@@ -65,6 +65,13 @@ async function EventHeader({ params }: { params: Promise<{ id: string }> }) {
                         {place}
                     </span>
                 )}
+                <Link
+                    href={`/e/${event.slug}`}
+                    className="flex items-center gap-1.5 text-primary underline-offset-4 hover:underline"
+                >
+                    <ExternalLink className="size-4 shrink-0" aria-hidden />
+                    Etkinlik sayfası
+                </Link>
             </p>
         </div>
     );
