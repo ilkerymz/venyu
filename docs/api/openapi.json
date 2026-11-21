@@ -1324,6 +1324,10 @@
       "AcceptInvitationAsGuestRequest" : {
         "type" : "object",
         "properties" : {
+          "answers" : {
+            "type" : "object",
+            "additionalProperties" : { }
+          },
           "name" : {
             "type" : "string",
             "maxLength" : 100,
@@ -1343,6 +1347,10 @@
       "AcceptInvitationRequest" : {
         "type" : "object",
         "properties" : {
+          "answers" : {
+            "type" : "object",
+            "additionalProperties" : { }
+          },
           "ticketTypeId" : {
             "type" : "string",
             "format" : "uuid"
@@ -1574,6 +1582,10 @@
       "GuestRegistrationRequest" : {
         "type" : "object",
         "properties" : {
+          "answers" : {
+            "type" : "object",
+            "additionalProperties" : { }
+          },
           "email" : {
             "type" : "string",
             "format" : "email",
@@ -1617,6 +1629,16 @@
           },
           "eventTitle" : {
             "type" : "string"
+          },
+          "formFields" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/FormField"
+            }
+          },
+          "formVersion" : {
+            "type" : "integer",
+            "format" : "int32"
           },
           "requiresAccount" : {
             "type" : "boolean"
@@ -1900,6 +1922,10 @@
       "RegistrationRequest" : {
         "type" : "object",
         "properties" : {
+          "answers" : {
+            "type" : "object",
+            "additionalProperties" : { }
+          },
           "ticketTypeId" : {
             "type" : "string",
             "format" : "uuid"
@@ -1921,6 +1947,10 @@
           "expiresAt" : {
             "type" : "string",
             "format" : "date-time"
+          },
+          "formVersion" : {
+            "type" : "integer",
+            "format" : "int32"
           },
           "id" : {
             "type" : "string",

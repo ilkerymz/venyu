@@ -26,6 +26,7 @@ import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
@@ -136,7 +137,7 @@ class RegistrationTests {
         List<Callable<Boolean>> tasks = new ArrayList<>();
         for (int i = 0; i < 200; i++) {
             UUID someone = UUID.randomUUID();
-            tasks.add(() -> succeeds(() -> registrationService.register(someone, eventId, ticketId)));
+            tasks.add(() -> succeeds(() -> registrationService.register(someone, eventId, ticketId, Map.of())));
         }
 
         assertThat(runConcurrently(tasks)).isEqualTo(1);
@@ -150,8 +151,8 @@ class RegistrationTests {
         UUID ticketId = UUID.fromString(event.ticketTypeId());
 
         List<Callable<Boolean>> tasks = List.of(
-            () -> succeeds(() -> registrationService.register(participant, eventId, ticketId)),
-            () -> succeeds(() -> registrationService.register(participant, eventId, ticketId)));
+            () -> succeeds(() -> registrationService.register(participant, eventId, ticketId, Map.of())),
+            () -> succeeds(() -> registrationService.register(participant, eventId, ticketId, Map.of())));
 
         assertThat(runConcurrently(tasks)).isEqualTo(1);
         // Kaybeden istek de koltuk ayırmıştı; unique ihlali transaction'ı geri alınca koltuk da geri alındı.

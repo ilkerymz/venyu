@@ -6,18 +6,19 @@ import com.venyu.registration.internal.domain.RegistrationStatus;
 import java.time.Instant;
 import java.util.UUID;
 
-// expiresAt: sadece onay bekleyen (RESERVED) misafir kaydında dolu.
+// expiresAt: sadece onay bekleyen (RESERVED) misafir kaydında dolu. formVersion: formsuz etkinlikte null.
 public record RegistrationResponse(
     UUID id,
     UUID eventId,
     UUID ticketTypeId,
     RegistrationStatus status,
+    Integer formVersion,
     Instant expiresAt,
     Instant createdAt) {
 
     public static RegistrationResponse from(Registration registration) {
         return new RegistrationResponse(registration.getId(), registration.getEventId(),
-            registration.getTicketTypeId(), registration.getStatus(), registration.getExpiresAt(),
-            registration.getCreatedAt());
+            registration.getTicketTypeId(), registration.getStatus(), registration.getFormVersion(),
+            registration.getExpiresAt(), registration.getCreatedAt());
     }
 }

@@ -56,14 +56,15 @@ class InvitationController {
     @ResponseStatus(HttpStatus.CREATED)
     RegistrationResponse accept(@AuthenticationPrincipal Jwt jwt, @Valid @RequestBody AcceptInvitationRequest request) {
         return RegistrationResponse.from(
-            invitationService.acceptAsMember(userId(jwt), request.token(), request.ticketTypeId()));
+            invitationService.acceptAsMember(userId(jwt), request.token(), request.ticketTypeId(), request.answers()));
     }
 
     @PostMapping("/invitations/accept/guest")
     @ResponseStatus(HttpStatus.CREATED)
     RegistrationResponse acceptAsGuest(@Valid @RequestBody AcceptInvitationAsGuestRequest request) {
         return RegistrationResponse.from(
-            invitationService.acceptAsGuest(request.token(), request.ticketTypeId(), request.name()));
+            invitationService.acceptAsGuest(request.token(), request.ticketTypeId(), request.name(),
+                request.answers()));
     }
 
     private static UUID userId(Jwt jwt) {
