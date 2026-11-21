@@ -29,3 +29,5 @@ databaseChangeLog:
       file: db/changelog/changes/0014-form-schemas.sql
   - include:
       file: db/changelog/changes/0015-registration-answers.sql
+  - include:
+      file: db/changelog/changes/0016-tickets-check-in.sql

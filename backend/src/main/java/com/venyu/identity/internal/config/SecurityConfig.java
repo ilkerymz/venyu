@@ -30,9 +30,10 @@ public class SecurityConfig {
                     .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                     .requestMatchers(HttpMethod.GET, "/venues", "/venues/*", "/venues/*/slots",
                         "/events/by-slug/*", "/events/*/form").permitAll()
-                    // Misafir kaydı ve e-posta onayı (F2-4): hesapsız akış.
+                    // Misafir kaydı, e-posta onayı, davet ve "yönet" link'i (F2-4, F2-6): hesapsız akışlar.
                     .requestMatchers(HttpMethod.POST, "/events/*/registrations/guest", "/registrations/confirm",
-                        "/invitations/preview", "/invitations/accept/guest").permitAll()
+                        "/invitations/preview", "/invitations/accept/guest",
+                        "/registrations/manage", "/registrations/manage/cancel").permitAll()
                     .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
                 .build();

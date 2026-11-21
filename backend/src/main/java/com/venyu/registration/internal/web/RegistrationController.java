@@ -1,10 +1,7 @@
 package com.venyu.registration.internal.web;
 
 import com.venyu.registration.internal.service.RegistrationService;
-import com.venyu.registration.internal.web.dto.ConfirmRegistrationRequest;
-import com.venyu.registration.internal.web.dto.GuestRegistrationRequest;
-import com.venyu.registration.internal.web.dto.RegistrationRequest;
-import com.venyu.registration.internal.web.dto.RegistrationResponse;
+import com.venyu.registration.internal.web.dto.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -33,6 +30,17 @@ class RegistrationController {
                                   @Valid @RequestBody RegistrationRequest request) {
         return RegistrationResponse.from(registrationService.register(userId(jwt), eventId, request.ticketTypeId(),
             request.answers()));
+    }
+
+    // Misafirin bilet e-postasındaki "yönet" link'i. POST: token body'de (log'lara ve Referer'a düşmesin).
+    @PostMapping("/registrations/manage")
+    ManagedRegistrationResponse manage(@Valid @RequestBody ManageTokenRequest request) {
+        return ManagedRegistrationResponse.from(registrationService.manage(request.token()));
+    }
+
+    @PostMapping("/registrations/manage/cancel")
+    ManagedRegistrationResponse cancelByManageToken(@Valid @RequestBody ManageTokenRequest request) {
+        return ManagedRegistrationResponse.from(registrationService.cancelByManageToken(request.token()));
     }
 
     @PostMapping("/registrations/{registrationId}/cancel")

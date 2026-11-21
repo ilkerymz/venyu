@@ -24,6 +24,8 @@ public interface RegistrationRepository extends JpaRepository<Registration, UUID
 
     Optional<Registration> findByConfirmationTokenHash(String confirmationTokenHash);
 
+    Optional<Registration> findByManageTokenHash(String manageTokenHash);
+
     // Expiry job: tur başına sınırlı sayıda (registrations_reserved_expiry_idx).
     List<Registration> findTop100ByStatusAndExpiresAtBeforeOrderByExpiresAtAsc(RegistrationStatus status,
                                                                                Instant now);

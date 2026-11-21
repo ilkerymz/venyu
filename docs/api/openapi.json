@@ -990,6 +990,62 @@
         "tags" : [ "registration-controller" ]
       }
     },
+    "/registrations/manage" : {
+      "post" : {
+        "operationId" : "manage",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ManageTokenRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ManagedRegistrationResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "registration-controller" ]
+      }
+    },
+    "/registrations/manage/cancel" : {
+      "post" : {
+        "operationId" : "cancelByManageToken",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ManageTokenRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ManagedRegistrationResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "registration-controller" ]
+      }
+    },
     "/registrations/{registrationId}/cancel" : {
       "post" : {
         "operationId" : "cancel",
@@ -1725,6 +1781,49 @@
         },
         "required" : [ "email", "password" ]
       },
+      "ManageTokenRequest" : {
+        "type" : "object",
+        "properties" : {
+          "token" : {
+            "type" : "string",
+            "minLength" : 1
+          }
+        },
+        "required" : [ "token" ]
+      },
+      "ManagedRegistrationResponse" : {
+        "type" : "object",
+        "properties" : {
+          "endsAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "eventSlug" : {
+            "type" : "string"
+          },
+          "eventTitle" : {
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "startsAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "status" : {
+            "type" : "string",
+            "enum" : [ "RESERVED", "PENDING_THRESHOLD", "CONFIRMED", "CHECKED_IN", "EXPIRED", "REFUNDED", "CANCELLED" ]
+          },
+          "ticketCode" : {
+            "type" : "string"
+          }
+        }
+      },
       "MeResponse" : {
         "type" : "object",
         "properties" : {
@@ -1936,6 +2035,10 @@
       "RegistrationResponse" : {
         "type" : "object",
         "properties" : {
+          "checkedInAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
           "createdAt" : {
             "type" : "string",
             "format" : "date-time"
@@ -1959,6 +2062,9 @@
           "status" : {
             "type" : "string",
             "enum" : [ "RESERVED", "PENDING_THRESHOLD", "CONFIRMED", "CHECKED_IN", "EXPIRED", "REFUNDED", "CANCELLED" ]
+          },
+          "ticketCode" : {
+            "type" : "string"
           },
           "ticketTypeId" : {
             "type" : "string",

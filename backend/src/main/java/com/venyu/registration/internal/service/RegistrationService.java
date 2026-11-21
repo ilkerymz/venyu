@@ -8,12 +8,15 @@ import com.venyu.event.TicketReservation;
 import com.venyu.form.EventForms;
 import com.venyu.form.FormValidation;
 import com.venyu.registration.GuestConfirmationRequested;
+import com.venyu.registration.TicketIssued;
 import com.venyu.registration.internal.domain.FormAnswers;
 import com.venyu.registration.internal.domain.Registration;
 import com.venyu.registration.internal.domain.RegistrationStatus;
+import com.venyu.registration.internal.domain.TicketCredentials;
 import com.venyu.registration.internal.exception.AlreadyRegisteredException;
 import com.venyu.registration.internal.exception.InvalidAnswersException;
 import com.venyu.registration.internal.exception.InvalidConfirmationTokenException;
+import com.venyu.registration.internal.exception.InvalidManageTokenException;
 import com.venyu.registration.internal.exception.RegistrationConflictException;
 import com.venyu.registration.internal.exception.RegistrationNotAvailableException;
 import com.venyu.registration.internal.exception.RegistrationNotFoundException;
@@ -63,7 +66,9 @@ public class RegistrationService {
         }
         FormAnswers formAnswers = validateAnswers(eventId, ticketTypeId, answers);
         reserveSeat(eventId, ticketTypeId, context);
-        return saveNew(Registration.confirmed(eventId, ticketTypeId, userId, formAnswers));
+        // Üye bileti /me/registrations'ta görür ve kendi hesabıyla iptal eder: "yönet" token'ı yok.
+        return saveNew(Registration.confirmed(eventId, ticketTypeId, userId, formAnswers,
+            new TicketCredentials(SecureTokens.ticketCode(), null)));
     }
 
     @Transactional
@@ -93,26 +98,46 @@ public class RegistrationService {
         requireNoActiveGuestRegistration(eventId, email);
         FormAnswers formAnswers = validateAnswers(eventId, ticketTypeId, answers);
         reserveSeat(eventId, ticketTypeId, ReservationContext.invitedGuest());
-        return saveNew(Registration.confirmedGuest(eventId, ticketTypeId, email, name.trim(), formAnswers));
+        String manageToken = SecureTokens.generate();
+        Registration registration = saveNew(Registration.confirmedGuest(eventId, ticketTypeId, email, name.trim(),
+            formAnswers, guestTicket(manageToken)));
+        publishTicket(registration, manageToken);
+        return registration;
     }
 
     @Transactional
     public Registration confirmGuest(String rawToken) {
         Registration registration = registrations.findByConfirmationTokenHash(SecureTokens.hash(rawToken))
             .orElseThrow(InvalidConfirmationTokenException::new);
-        registration.confirm(Instant.now());
+        String manageToken = SecureTokens.generate();
+        registration.confirm(Instant.now(), guestTicket(manageToken));
         flush(); // Expiry job ile yarış: aynı satıra ikisi birden dokunursa biri optimistic hata alır.
+        publishTicket(registration, manageToken);
         return registration;
+    }
+
+    // Misafirin "yönet" link'i: e-postadaki token kaydı görmeye ve iptal etmeye yeter (hesap yok).
+    @Transactional(readOnly = true)
+    public ManagedRegistration manage(String rawManageToken) {
+        Registration registration = findByManageToken(rawManageToken);
+        return new ManagedRegistration(registration, event(registration));
+    }
+
+    @Transactional
+    public ManagedRegistration cancelByManageToken(String rawManageToken) {
+        Registration registration = findByManageToken(rawManageToken);
+        cancel(registration);
+        return new ManagedRegistration(registration, event(registration));
+    }
+
+    public record ManagedRegistration(Registration registration, EventSummary event) {
     }
 
     @Transactional
     public Registration cancel(UUID userId, UUID registrationId) {
         Registration registration = registrations.findByIdAndUserId(registrationId, userId)
             .orElseThrow(RegistrationNotFoundException::new);
-        registration.cancel(Instant.now());
-        // release'ten önce: release içindeki bulk update persistence context'i temizliyor.
-        flush();
-        inventory.release(registration.getTicketTypeId());
+        cancel(registration);
         return registration;
     }
 
@@ -131,6 +156,34 @@ public class RegistrationService {
     @Transactional(readOnly = true)
     public List<Registration> listMine(UUID userId) {
         return registrations.findByUserIdOrderByCreatedAtDesc(userId);
+    }
+
+    private void cancel(Registration registration) {
+        registration.cancel(Instant.now());
+        // release'ten önce: release içindeki bulk update persistence context'i temizliyor.
+        flush();
+        inventory.release(registration.getTicketTypeId());
+    }
+
+    private Registration findByManageToken(String rawManageToken) {
+        return registrations.findByManageTokenHash(SecureTokens.hash(rawManageToken))
+            .orElseThrow(InvalidManageTokenException::new);
+    }
+
+    private EventSummary event(Registration registration) {
+        return eventLookup.find(registration.getEventId()).orElseThrow(RegistrationTargetNotFoundException::new);
+    }
+
+    private static TicketCredentials guestTicket(String rawManageToken) {
+        return new TicketCredentials(SecureTokens.ticketCode(), SecureTokens.hash(rawManageToken));
+    }
+
+    // Outbox: commit olursa bilet e-postası gider.
+    private void publishTicket(Registration registration, String rawManageToken) {
+        EventSummary event = event(registration);
+        events.publishEvent(new TicketIssued(registration.getId(), registration.getGuestEmail(),
+            registration.getGuestName(), event.title(), event.startsAt(), registration.getTicketCode(),
+            rawManageToken));
     }
 
     private void requireNoActiveGuestRegistration(UUID eventId, String normalizedEmail) {

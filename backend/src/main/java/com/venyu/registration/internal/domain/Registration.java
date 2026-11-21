@@ -61,6 +61,19 @@ public class Registration {
     @Column(updatable = false)
     private Integer formVersion;
 
+    // QR'daki bilet kodu: onaylanınca verilir, sonra değişmez. Giriş görevlisine gösterildiği için yetki vermez.
+    private String ticketCode;
+
+    // Sadece misafir: bilet e-postasındaki "yönet" link'i (görüntüle, iptal). Bilet kodundan ayrı (ADR-010).
+    private String manageTokenHash;
+
+    // Check-in atomik koşullu UPDATE ile yapılır (RegistrationRepository.checkIn); entity bu alanları yazmaz.
+    @Column(insertable = false, updatable = false)
+    private Instant checkedInAt;
+
+    @Column(insertable = false, updatable = false)
+    private UUID checkedInBy;
+
     @Version
     private long version;
 
@@ -73,9 +86,11 @@ public class Registration {
     private Instant cancelledAt;
 
     // Üye, ücretsiz bilet: kayıt anında onaylı. Ücretli akış (RESERVED → PENDING_THRESHOLD) F3'te.
-    public static Registration confirmed(UUID eventId, UUID ticketTypeId, UUID userId, FormAnswers answers) {
+    public static Registration confirmed(UUID eventId, UUID ticketTypeId, UUID userId, FormAnswers answers,
+                                         TicketCredentials ticket) {
         Registration registration = create(eventId, ticketTypeId, RegistrationStatus.CONFIRMED, answers);
         registration.userId = userId;
+        registration.issue(ticket);
         return registration;
     }
 
@@ -92,10 +107,11 @@ public class Registration {
 
     // Davetli misafir: e-postası davet link'iyle kanıtlandı, onay adımı yok (F2-4 K1).
     public static Registration confirmedGuest(UUID eventId, UUID ticketTypeId, String email, String name,
-                                              FormAnswers answers) {
+                                              FormAnswers answers, TicketCredentials ticket) {
         Registration registration = create(eventId, ticketTypeId, RegistrationStatus.CONFIRMED, answers);
         registration.guestEmail = email;
         registration.guestName = name;
+        registration.issue(ticket);
         return registration;
     }
 
@@ -112,7 +128,7 @@ public class Registration {
         return registration;
     }
 
-    public void confirm(Instant now) {
+    public void confirm(Instant now, TicketCredentials ticket) {
         if (status == RegistrationStatus.EXPIRED || (status == RegistrationStatus.RESERVED && !expiresAt.isAfter(now))) {
             throw new RegistrationStateException("Onay süresi doldu. Lütfen tekrar kayıt ol.");
         }
@@ -123,6 +139,7 @@ public class Registration {
         this.confirmationTokenHash = null; // tek kullanımlık
         this.expiresAt = null;
         this.updatedAt = now;
+        issue(ticket);
     }
 
     // Token hash'i bilerek silinmez: geç tıklayan misafir "geçersiz link" yerine "süre doldu" görsün.
@@ -132,6 +149,11 @@ public class Registration {
         }
         this.status = RegistrationStatus.EXPIRED;
         this.updatedAt = now;
+    }
+
+    private void issue(TicketCredentials ticket) {
+        this.ticketCode = ticket.ticketCode();
+        this.manageTokenHash = ticket.manageTokenHash();
     }
 
     public void cancel(Instant now) {
