@@ -6,14 +6,9 @@ import com.venyu.identity.internal.exception.PasswordTooLongException;
 import com.venyu.identity.internal.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ProblemDetail;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.ErrorResponseException;
-
-import java.nio.charset.StandardCharsets;
 
 @Service
 @RequiredArgsConstructor
