@@ -20,6 +20,8 @@ export async function apiFetch<T>(url: string, init?: RequestInit): Promise<T> {
         throw new ApiError(res.status, await readProblem(res));
     }
 
-    const data = res.status === 204 ? undefined : await res.json();
+    // 202/204 gibi gövdesiz yanıtlar: boş metin → undefined.
+    const text = await res.text();
+    const data = text ? JSON.parse(text) : undefined;
     return { data, status: res.status, headers: res.headers } as T;
 }
