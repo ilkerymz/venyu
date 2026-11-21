@@ -15,6 +15,7 @@ Venyu: mekan + organizatör + katılımcı buluşturan sosyal etkinlik platformu
 - DB: `docker compose up -d` (repo kökü, PostgreSQL port 5433)
 - Çalıştır: `cd backend && ./mvnw spring-boot:run` (`VENYU_JWT_SECRET` env değişkeni gerekli, en az 32 karakter; üretmek için `openssl rand -base64 48`)
 - Test: `cd backend && ./mvnw verify`
+- API değişince frontend client'ı: `cd frontend && pnpm api:generate` (CI uyumsuzlukta kırmızı)
 
 ## Mimari kurallar
 - Spring Boot 4.1, Spring Modulith 2.1, Java 21, Maven, PostgreSQL 17.
