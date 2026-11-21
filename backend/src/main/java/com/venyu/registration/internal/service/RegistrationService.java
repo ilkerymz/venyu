@@ -35,6 +35,8 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -153,9 +155,22 @@ public class RegistrationService {
         return expired.size();
     }
 
+    public record MyRegistration(Registration registration, EventSummary event) {
+    }
+
+    // Kullanıcının kayıtları, etkinlik bilgisiyle; etkinlikler tek sorguyla (N+1 yok).
     @Transactional(readOnly = true)
-    public List<Registration> listMine(UUID userId) {
-        return registrations.findByUserIdOrderByCreatedAtDesc(userId);
+    public List<MyRegistration> listMine(UUID userId) {
+        List<Registration> mine = registrations.findByUserIdOrderByCreatedAtDesc(userId);
+        Map<UUID, EventSummary> eventsById = eventLookup
+            .findAll(mine.stream().map(Registration::getEventId).collect(Collectors.toSet()))
+            .stream()
+            .collect(Collectors.toMap(EventSummary::id, Function.identity()));
+        // Etkinlikler silinmez (iptal edilir); yine de bulunamayan olursa o kayıt listeyi bozmasın.
+        return mine.stream()
+            .filter(registration -> eventsById.containsKey(registration.getEventId()))
+            .map(registration -> new MyRegistration(registration, eventsById.get(registration.getEventId())))
+            .toList();
     }
 
     private void cancel(Registration registration) {

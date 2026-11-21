@@ -49,8 +49,8 @@ class RegistrationController {
     }
 
     @GetMapping("/me/registrations")
-    List<RegistrationResponse> listMine(@AuthenticationPrincipal Jwt jwt) {
-        return registrationService.listMine(userId(jwt)).stream().map(RegistrationResponse::from).toList();
+    List<MyRegistrationResponse> listMine(@AuthenticationPrincipal Jwt jwt) {
+        return registrationService.listMine(userId(jwt)).stream().map(MyRegistrationResponse::from).toList();
     }
 
     // Hesapsız kayıt: koltuk 30 dk tutulur, e-postadaki link'le onaylanınca CONFIRMED olur.
