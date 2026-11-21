@@ -12,7 +12,7 @@ import {
 import { authHeaders } from "@/auth/server";
 import { labelErrors, readAnswers } from "@/lib/form-answers";
 
-export type RegisterState = { errors?: string[]; guestEmail?: string };
+import type { RegisterState } from "@/components/registration-panel";
 
 async function loadFields(eventId: string): Promise<FormField[]> {
     try {

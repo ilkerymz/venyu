@@ -47,6 +47,7 @@ Kök `CLAUDE.md` genel kurallar için geçerli. Bu dosya `frontend/` içindeki �
 - Dinamik form: `lib/form-visibility.ts` backend'in görünürlük kuralının (sırayla, gizli/boş = null, `ticketTypeIds`, hata → gizli) aynısı; `showIf` için npm `jexl`. Karar her zaman sunucuda. Cevap tipleri `lib/form-answers.ts`.
 - Uzun/dinamik formlarda `<form action>` yerine `onSubmit` + `startTransition(dispatch)`: React başarısız gönderimden sonra formu sıfırlamaz.
 - Form oluşturucu (`panel/etkinlik/[id]/form`): saf mantık `lib/form-builder.ts`. Organizatör JEXL yazmaz; koşul seçiminden `answers.<key> <op> <değer>` üretilir (sadece sembol operatörleri). Anahtarlar kalıcı `soru_N` (metinden türetilmez). Çözülemeyen koşul ham korunur. Önizleme kayıt panelinin `QuestionField`'ını kullanır.
+- Kayıt paneli `components/registration-panel.tsx` ortak: etkinlik sayfasında `registerAction`, davet kabulünde (`/invitations/accept`) `acceptInvitationAction` + `guestFields="name"` (e-posta davetten gelir). Bilet hemen hazırsa (`ticketCode`) panel QR'ı gösterir.
 - QR: `components/ticket-qr.tsx` (`qrcode` ile senkron SVG; sunucu ve tarayıcıda aynı).
 
 ## Tasarım sistemi
@@ -76,7 +77,7 @@ src/
 - **Instant navigation (Next.js 16 dev "Insight" uyarıları sıfır kalmalı):** URL'e (`searchParams`, `params`), cookie'ye ya da önbelleksiz veriye bağlı kısım ya aynı segmentteki `loading.tsx` ile ya da sayfa içinde `<Suspense>` ile sarılır; statik kısım (başlık) dışarıda kalır. `connection()` ile sayfayı dinamik yapma; tarayıcıya özgü değer (bugünün tarihi) istemcide `useSyncExternalStore` ile.
 - Next.js 16'da `error.tsx` prop'u `retry` (`reset` değil); `notFound()`'u yakalayan `try/catch`'te `unstable_rethrow`.
 - Organizatör paneli `app/panel/` altında: veri `panel/data.ts` (401 → giriş, 403 → hesabım, 404 → notFound), işlemler `panel/actions.ts` (Server Action + `refresh()`); id'li action'lar `.bind(null, id)` ile.
-- Etkinlik yönetimi `panel/etkinlik/[id]/layout.tsx`: ortak başlık (Suspense içinde, `loadEventSummary` React `cache` ile istek başına tek) + sekmeler (Genel, Katılımcılar, Kayıt formu, Kapı). Alt sayfalar sadece içerik; her birinin `loading.tsx`'i var.
+- Etkinlik yönetimi `panel/etkinlik/[id]/layout.tsx`: ortak başlık (Suspense içinde, `loadEventSummary` React `cache` ile istek başına tek) + sekmeler (Genel, Katılımcılar, Davetler, Kayıt formu, Kapı). Alt sayfalar sadece içerik; her birinin `loading.tsx`'i var.
 - Kapı modu: `qr-scanner` (worker'lı, iOS'ta da çalışır) dinamik import; aynı kod 4 sn içinde tekrar okunursa yok sayılır; elle kod girişi her zaman var. Kamera HTTPS ister (localhost hariç).
 - CSV: UTF-8 BOM + `;` (Excel TR), formül enjeksiyonuna karşı `=+-@` ile başlayan hücrelere `'`.
 - Varsayılan Server Component; `"use client"` sadece etkileşim gereken yaprak bileşende.
