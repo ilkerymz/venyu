@@ -1,0 +1,124 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/*
+ * Venyu tasarım token'ları.
+ * Palet İznik çinisinden: çini mavisi (eylem), turkuaz (olumlu durum),
+ * nar (kıtlık / tehlike), gece (metin), kâğıt (zemin).
+ * Bileşenler ham renk değil, aşağıdaki semantik değişkenleri kullanır.
+ */
+:root {
+    --gece: #15172e;
+    --kagit: #f3f4f8;
+    --beyaz: #ffffff;
+    --cini: #2d3fd3;
+    --cini-koyu: #2232b0;
+    --cini-acik: #e6e9fb;
+    --turkuaz: #0b8f80;
+    --turkuaz-acik: #ddf3ef;
+    --nar: #d7264e;
+    --nar-acik: #fbe4e9;
+    --sis: #5e6280;
+    --cizgi: #dcdee8;
+
+    --background: var(--kagit);
+    --foreground: var(--gece);
+    --card: var(--beyaz);
+    --card-foreground: var(--gece);
+    --popover: var(--beyaz);
+    --popover-foreground: var(--gece);
+    --primary: var(--cini);
+    --primary-foreground: var(--beyaz);
+    --secondary: var(--cini-acik);
+    --secondary-foreground: var(--cini-koyu);
+    --muted: #e9eaf1;
+    --muted-foreground: var(--sis);
+    --accent: var(--cini-acik);
+    --accent-foreground: var(--cini-koyu);
+    --destructive: var(--nar);
+    --success: var(--turkuaz);
+    --success-soft: var(--turkuaz-acik);
+    --scarce: var(--nar);
+    --scarce-soft: var(--nar-acik);
+    --border: var(--cizgi);
+    --input: #c9ccda;
+    --ring: var(--cini);
+    --radius: 0.625rem;
+}
+
+@theme inline {
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+    --color-card: var(--card);
+    --color-card-foreground: var(--card-foreground);
+    --color-popover: var(--popover);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-primary: var(--primary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-secondary: var(--secondary);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-muted: var(--muted);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-accent: var(--accent);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-destructive: var(--destructive);
+    --color-success: var(--success);
+    --color-success-soft: var(--success-soft);
+    --color-scarce: var(--scarce);
+    --color-scarce-soft: var(--scarce-soft);
+    --color-border: var(--border);
+    --color-input: var(--input);
+    --color-ring: var(--ring);
+
+    --radius-sm: calc(var(--radius) - 4px);
+    --radius-md: calc(var(--radius) - 2px);
+    --radius-lg: var(--radius);
+    --radius-xl: calc(var(--radius) + 4px);
+
+    --font-sans: "Onest Variable", ui-sans-serif, system-ui, sans-serif;
+    --font-display: "Bricolage Grotesque Variable", "Onest Variable", ui-sans-serif, sans-serif;
+}
+
+@layer base {
+    * {
+        @apply border-border outline-ring/50;
+    }
+    html {
+        -webkit-text-size-adjust: 100%;
+    }
+    body {
+        @apply bg-background font-sans text-foreground antialiased;
+    }
+    h1,
+    h2,
+    h3 {
+        @apply font-display;
+        text-wrap: balance;
+    }
+    p {
+        text-wrap: pretty;
+    }
+}
+
+/*
+ * Biletin yırtma çizgisindeki yarım daire oyukları.
+ * Gerçek kesik (mask): zemin rengi ne olursa olsun doğru görünür.
+ * --cut, koçan genişliğiyle aynı olmalı (EventTicket: w-20 / sm:w-24).
+ */
+@utility ticket-cut {
+    --cut: 5rem;
+    --notch: 0.6rem;
+    mask-image:
+        radial-gradient(circle var(--notch) at var(--cut) 0, #0000 98%, #000),
+        radial-gradient(circle var(--notch) at var(--cut) 100%, #0000 98%, #000);
+    mask-composite: intersect;
+
+    @media (width >= 40rem) {
+        --cut: 6rem;
+    }
+}
+
+/* Saat, fiyat ve sayaçlarda rakamlar hizalı dursun. */
+@utility nums {
+    font-variant-numeric: tabular-nums;
+}
