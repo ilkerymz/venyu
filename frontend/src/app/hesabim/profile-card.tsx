@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatPhone } from "@/lib/phone";
 import { LogoutButton } from "./account-actions";
+import { EmailRow } from "./email-row";
 import { PhoneRow } from "./phone-row";
 
 const ROLE_LABELS: Record<string, string> = {
@@ -42,12 +43,7 @@ export function ProfileCard({ profile }: { profile: MeResponse }) {
                             {profile.email}
                             {profile.emailVerified && <Verified />}
                         </span>
-                        {!profile.emailVerified && (
-                            <span className="mt-1 block text-sm text-muted-foreground">
-                                Doğrulanmadı. Kayıt olurken gönderdiğimiz e-postadaki bağlantıya
-                                tıkla.
-                            </span>
-                        )}
+                        {!profile.emailVerified && <EmailRow />}
                     </dd>
                 </div>
                 <div className="px-6 py-4">
