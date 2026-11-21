@@ -31,7 +31,8 @@ class RegistrationController {
     @ResponseStatus(HttpStatus.CREATED)
     RegistrationResponse register(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID eventId,
                                   @Valid @RequestBody RegistrationRequest request) {
-        return RegistrationResponse.from(registrationService.register(userId(jwt), eventId, request.ticketTypeId()));
+        return RegistrationResponse.from(registrationService.register(userId(jwt), eventId, request.ticketTypeId(),
+            request.answers()));
     }
 
     @PostMapping("/registrations/{registrationId}/cancel")
@@ -49,7 +50,8 @@ class RegistrationController {
     @ResponseStatus(HttpStatus.CREATED)
     RegistrationResponse registerGuest(@PathVariable UUID eventId, @Valid @RequestBody GuestRegistrationRequest request) {
         return RegistrationResponse.from(
-            registrationService.registerGuest(eventId, request.ticketTypeId(), request.email(), request.name()));
+            registrationService.registerGuest(eventId, request.ticketTypeId(), request.email(), request.name(),
+                request.answers()));
     }
 
     @PostMapping("/registrations/confirm")

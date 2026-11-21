@@ -29,10 +29,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -226,7 +223,7 @@ class GuestAndInvitationTests {
         List<Callable<Boolean>> tasks = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
             UUID someone = UUID.randomUUID();
-            tasks.add(() -> succeeds(() -> invitationService.acceptAsMember(someone, token, ticketId)));
+            tasks.add(() -> succeeds(() -> invitationService.acceptAsMember(someone, token, ticketId, Map.of())));
         }
 
         assertThat(runConcurrently(tasks)).isEqualTo(1);

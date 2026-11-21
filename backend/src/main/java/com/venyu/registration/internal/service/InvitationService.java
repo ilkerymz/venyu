@@ -4,6 +4,8 @@ import com.venyu.event.EventLookup;
 import com.venyu.event.EventSummary;
 import com.venyu.event.ReservationContext;
 import com.venyu.event.TicketOffer;
+import com.venyu.form.EventForm;
+import com.venyu.form.EventForms;
 import com.venyu.registration.InvitationSent;
 import com.venyu.registration.internal.domain.Invitation;
 import com.venyu.registration.internal.domain.Registration;
@@ -25,6 +27,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -36,6 +39,7 @@ public class InvitationService {
     private final InvitationRepository invitations;
     private final RegistrationService registrationService;
     private final EventLookup eventLookup;
+    private final EventForms eventForms;
     private final ApplicationEventPublisher events;
 
     // Zaten davet edilmiş e-postalar sessizce atlanır (idempotent); dönen liste sadece yeni davetler.
@@ -73,33 +77,36 @@ public class InvitationService {
         return invitations.findByEventIdOrderByCreatedAtAsc(eventId);
     }
 
-    // INVITE_ONLY etkinlik slug'la görünmez; davetli etkinliği ve bilet seçeneklerini buradan görür.
+    // INVITE_ONLY etkinlik slug'la görünmez; davetli etkinliği, bilet seçeneklerini ve formu buradan görür.
     @Transactional(readOnly = true)
     public InvitationPreview preview(String rawToken) {
         Invitation invitation = findByToken(rawToken);
         EventSummary event = eventLookup.find(invitation.getEventId())
             .orElseThrow(RegistrationTargetNotFoundException::new);
-        return new InvitationPreview(invitation, event, eventLookup.findTicketOffers(event.id()));
+        return new InvitationPreview(invitation, event, eventLookup.findTicketOffers(event.id()),
+            eventForms.findCurrent(event.id()).orElse(null));
     }
 
     @Transactional
-    public Registration acceptAsMember(UUID userId, String rawToken, UUID ticketTypeId) {
+    public Registration acceptAsMember(UUID userId, String rawToken, UUID ticketTypeId, Map<String, Object> answers) {
         Invitation invitation = consume(rawToken);
         return registrationService.registerMember(userId, invitation.getEventId(), ticketTypeId,
-            ReservationContext.invitedMember());
+            ReservationContext.invitedMember(), answers);
     }
 
     @Transactional
-    public Registration acceptAsGuest(String rawToken, UUID ticketTypeId, String name) {
+    public Registration acceptAsGuest(String rawToken, UUID ticketTypeId, String name, Map<String, Object> answers) {
         Invitation invitation = consume(rawToken);
         return registrationService.registerInvitedGuest(invitation.getEventId(), ticketTypeId,
-            invitation.getEmail(), name);
+            invitation.getEmail(), name, answers);
     }
 
-    public record InvitationPreview(Invitation invitation, EventSummary event, List<TicketOffer> tickets) {
+    // form: etkinliğin formu yoksa null.
+    public record InvitationPreview(Invitation invitation, EventSummary event, List<TicketOffer> tickets,
+                                    EventForm form) {
     }
 
-    // Kayıttan önce: sonraki adımlar (dolu, zaten kayıtlı...) hata verirse transaction daveti de geri alır.
+    // Kayıttan önce: sonraki adımlar (dolu, zaten kayıtlı, geçersiz cevap...) hata verirse transaction daveti de geri alır.
     private Invitation consume(String rawToken) {
         Invitation invitation = findByToken(rawToken);
         invitation.accept(Instant.now());

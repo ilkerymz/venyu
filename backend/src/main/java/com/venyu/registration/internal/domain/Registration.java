@@ -13,6 +13,7 @@ import jakarta.persistence.Version;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnTransformer;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -52,6 +53,14 @@ public class Registration {
 
     private Instant expiresAt;
 
+    // Görünen form alanlarının cevapları (ADR-009). JSONB kolonu Java'da String (form_schemas ile aynı yaklaşım).
+    @Column(nullable = false, updatable = false, columnDefinition = "jsonb")
+    @ColumnTransformer(write = "?::jsonb")
+    private String answers;
+
+    @Column(updatable = false)
+    private Integer formVersion;
+
     @Version
     private long version;
 
@@ -64,16 +73,16 @@ public class Registration {
     private Instant cancelledAt;
 
     // Üye, ücretsiz bilet: kayıt anında onaylı. Ücretli akış (RESERVED → PENDING_THRESHOLD) F3'te.
-    public static Registration confirmed(UUID eventId, UUID ticketTypeId, UUID userId) {
-        Registration registration = create(eventId, ticketTypeId, RegistrationStatus.CONFIRMED);
+    public static Registration confirmed(UUID eventId, UUID ticketTypeId, UUID userId, FormAnswers answers) {
+        Registration registration = create(eventId, ticketTypeId, RegistrationStatus.CONFIRMED, answers);
         registration.userId = userId;
         return registration;
     }
 
     // Misafir: e-posta onaylanana kadar koltuk expiresAt'e kadar tutulur.
     public static Registration reservedGuest(UUID eventId, UUID ticketTypeId, String email, String name,
-                                             String tokenHash, Instant expiresAt) {
-        Registration registration = create(eventId, ticketTypeId, RegistrationStatus.RESERVED);
+                                             FormAnswers answers, String tokenHash, Instant expiresAt) {
+        Registration registration = create(eventId, ticketTypeId, RegistrationStatus.RESERVED, answers);
         registration.guestEmail = email;
         registration.guestName = name;
         registration.confirmationTokenHash = tokenHash;
@@ -82,18 +91,22 @@ public class Registration {
     }
 
     // Davetli misafir: e-postası davet link'iyle kanıtlandı, onay adımı yok (F2-4 K1).
-    public static Registration confirmedGuest(UUID eventId, UUID ticketTypeId, String email, String name) {
-        Registration registration = create(eventId, ticketTypeId, RegistrationStatus.CONFIRMED);
+    public static Registration confirmedGuest(UUID eventId, UUID ticketTypeId, String email, String name,
+                                              FormAnswers answers) {
+        Registration registration = create(eventId, ticketTypeId, RegistrationStatus.CONFIRMED, answers);
         registration.guestEmail = email;
         registration.guestName = name;
         return registration;
     }
 
-    private static Registration create(UUID eventId, UUID ticketTypeId, RegistrationStatus status) {
+    private static Registration create(UUID eventId, UUID ticketTypeId, RegistrationStatus status,
+                                       FormAnswers answers) {
         Registration registration = new Registration();
         registration.eventId = eventId;
         registration.ticketTypeId = ticketTypeId;
         registration.status = status;
+        registration.answers = answers.json();
+        registration.formVersion = answers.formVersion();
         registration.createdAt = Instant.now();
         registration.updatedAt = registration.createdAt;
         return registration;

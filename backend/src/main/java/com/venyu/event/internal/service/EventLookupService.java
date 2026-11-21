@@ -26,7 +26,7 @@ class EventLookupService implements EventLookup {
     public Optional<EventSummary> find(UUID eventId) {
         return events.findById(eventId).map(event -> new EventSummary(event.getId(), event.getTitle(),
             event.getSlug(), event.getOrganizerId(), event.getStartsAt(), event.getEndsAt(),
-            event.isRequiresAccount()));
+            event.isRequiresAccount(), event.isVisibleToPublic()));
     }
 
     @Override
