@@ -132,5 +132,5 @@ export async function becomeOrganizerAction(): Promise<FormState> {
     } catch (error) {
         return { errors: describeError(error) };
     }
-    redirect("/panel");
+    redirect("/hesabim");
 }

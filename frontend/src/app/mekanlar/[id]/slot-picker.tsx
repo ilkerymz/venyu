@@ -28,7 +28,7 @@ export function SlotPicker({ venueId, venueName, slots, visitor }: Props) {
                     mekan onaylayınca etkinliğini oluşturabilirsin.
                 </Notice>
                 <Button asChild variant="outline" className="justify-self-start">
-                    <Link href="/panel">Rezervasyonlarıma git</Link>
+                    <Link href="/hesabim#rezervasyonlar">Rezervasyonlarıma git</Link>
                 </Button>
             </div>
         );

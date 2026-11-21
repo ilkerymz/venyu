@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { EventCard } from "@/components/event-card";
+import { EventStatusBadge } from "@/components/event-status-badge";
 import { EventTicket } from "@/components/event-ticket";
 import { ThresholdMeter } from "@/components/threshold-meter";
 import { Badge } from "@/components/ui/badge";
@@ -166,6 +168,32 @@ export default function DesignSystemPage() {
                         currency="TRY"
                     />
                 </div>
+            </Section>
+
+            <Section title="Etkinlik kartı">
+                <ul className="grid max-w-3xl gap-5 sm:grid-cols-2">
+                    <li>
+                        <EventCard
+                            href="/tasarim"
+                            title="Kitap kulübü: Kürk Mantolu Madonna"
+                            place="Defne Kitabevi, Kadıköy"
+                            startsAt="2026-12-09T16:00:00Z"
+                            endsAt="2026-12-09T18:00:00Z"
+                            badge={<EventStatusBadge status="PUBLISHED" />}
+                        />
+                    </li>
+                    <li>
+                        <EventCard
+                            href="/tasarim"
+                            title="Geçen ayın pikniği"
+                            place="Validebağ Korusu"
+                            startsAt="2026-11-08T09:00:00Z"
+                            endsAt="2026-11-08T13:00:00Z"
+                            badge={<EventStatusBadge status="COMPLETED" />}
+                            muted
+                        />
+                    </li>
+                </ul>
             </Section>
         </main>
     );

@@ -1,24 +1,22 @@
+import { CalendarPlus, Plus } from "lucide-react";
 import type { Metadata } from "next";
+import Link from "next/link";
 import { redirect } from "next/navigation";
+import { Suspense } from "react";
 import { isApiError } from "@/api/api-error";
 import { me } from "@/api/generated/me-controller/me-controller";
+import { MyBookings } from "@/app/panel/my-bookings";
 import { authHeaders } from "@/auth/server";
+import { EventCard } from "@/components/event-card";
+import { EventStatusBadge } from "@/components/event-status-badge";
 import { Notice } from "@/components/form-parts";
 import { SiteHeader } from "@/components/site-header";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import { BecomeOrganizerForm, LogoutButton } from "./account-actions";
-import { PhoneVerification } from "./phone-verification";
-import { formatPhone } from "@/lib/phone";
+import { BecomeOrganizerForm } from "./account-actions";
+import { type EventCardView, loadOrganizerArea } from "./data";
+import { ProfileCard } from "./profile-card";
 
 export const metadata: Metadata = { title: "Hesabım", robots: { index: false } };
-
-const ROLE_LABELS: Record<string, string> = {
-    PARTICIPANT: "Katılımcı",
-    ORGANIZER: "Organizatör",
-    VENUE_OWNER: "Mekan sahibi",
-};
 
 type Props = { searchParams: Promise<{ hosgeldin?: string }> };
 
@@ -31,13 +29,12 @@ export default async function AccountPage({ searchParams }: Props) {
         if (isApiError(error, 401)) redirect("/giris?next=/hesabim");
         throw error;
     }
-    const roles = profile.roles ?? [];
-    const isOrganizer = roles.includes("ORGANIZER");
+    const isOrganizer = (profile.roles ?? []).includes("ORGANIZER");
 
     return (
         <>
             <SiteHeader />
-            <main className="mx-auto max-w-3xl px-5 pt-6 pb-20 sm:px-8">
+            <main className="mx-auto max-w-6xl px-5 pt-6 pb-20 sm:px-8">
                 {hosgeldin && (
                     <div className="mb-8">
                         <Notice>
@@ -46,96 +43,138 @@ export default async function AccountPage({ searchParams }: Props) {
                         </Notice>
                     </div>
                 )}
-
-                <h1 className="text-4xl font-bold tracking-[-0.02em] [font-stretch:85%] sm:text-5xl">
-                    {profile.displayName}
-                </h1>
-                <div className="mt-4 flex flex-wrap gap-2">
-                    {roles.map((role) => (
-                        <Badge key={role} variant="secondary">
-                            {ROLE_LABELS[role] ?? role}
-                        </Badge>
-                    ))}
-                </div>
-
-                <section className="mt-10 rounded-xl border bg-card p-6">
-                    <h2 className="text-xl font-semibold">Hesap bilgileri</h2>
-                    <dl className="mt-4 grid gap-4 sm:grid-cols-[10rem_1fr]">
-                        <dt className="text-sm text-muted-foreground">E-posta</dt>
-                        <dd className="flex flex-wrap items-center gap-2">
-                            <span className="break-all">{profile.email}</span>
-                            {profile.emailVerified ? (
-                                <Badge className="bg-success-soft text-success">Doğrulandı</Badge>
-                            ) : (
-                                <Badge className="bg-scarce-soft text-scarce">Doğrulanmadı</Badge>
-                            )}
-                        </dd>
-                        {!profile.emailVerified && (
-                            <dd className="text-sm text-muted-foreground sm:col-start-2">
-                                Kayıt olurken gönderdiğimiz e-postadaki bağlantıya tıkla.
-                            </dd>
+                <div className="grid gap-10 lg:grid-cols-[20rem_1fr] lg:items-start lg:gap-12">
+                    <div className="lg:sticky lg:top-6">
+                        <ProfileCard profile={profile} />
+                    </div>
+                    <div className="min-w-0">
+                        {isOrganizer ? (
+                            <Suspense fallback={<AreaSkeleton />}>
+                                <OrganizerArea />
+                            </Suspense>
+                        ) : (
+                            <BecomeOrganizer />
                         )}
-                    </dl>
-                </section>
-
-                <section className="mt-6 rounded-xl border bg-card p-6">
-                    <h2 className="text-xl font-semibold">Telefon</h2>
-                    {profile.phoneVerified && profile.phone ? (
-                        <p className="mt-3 flex flex-wrap items-center gap-2">
-                            {formatPhone(profile.phone)}
-                            <Badge className="bg-success-soft text-success">Doğrulandı</Badge>
-                        </p>
-                    ) : (
-                        <>
-                            <p className="mt-3 mb-5 leading-relaxed text-muted-foreground">
-                                Ücretli etkinliklere bilet almak ve ücretli etkinlik düzenlemek için
-                                telefonunu doğrula.
-                            </p>
-                            <PhoneVerification current={profile.phone} />
-                        </>
-                    )}
-                </section>
-
-                <section className="mt-6 rounded-xl border bg-card p-6">
-                    <h2 className="text-xl font-semibold">Etkinlik düzenle</h2>
-                    {isOrganizer ? (
-                        <>
-                            <p className="mt-3 mb-5 leading-relaxed text-muted-foreground">
-                                Etkinliklerini oluştur, biletlerini tanımla ve yayınla.
-                            </p>
-                            <Button asChild>
-                                <Link href="/panel">Etkinliklerime git</Link>
-                            </Button>
-                        </>
-                    ) : (
-                        <>
-                            <p className="mt-3 mb-5 leading-relaxed text-muted-foreground">
-                                Kendi etkinliğini kurmak için organizatör ol. Ücretsiz; mekanda ya
-                                da kendi adresinde, ücretli ya da ücretsiz etkinlik
-                                düzenleyebilirsin.
-                            </p>
-                            <BecomeOrganizerForm />
-                        </>
-                    )}
-                </section>
-
-                {roles.includes("VENUE_OWNER") && (
-                    <section className="mt-6 rounded-xl border bg-card p-6">
-                        <h2 className="text-xl font-semibold">Mekanların</h2>
-                        <p className="mt-3 mb-5 leading-relaxed text-muted-foreground">
-                            Boş saatlerini takvime ekle, organizatörlerin rezervasyon taleplerini
-                            yanıtla.
-                        </p>
-                        <Button asChild>
-                            <Link href="/mekan">Mekanlarıma git</Link>
-                        </Button>
-                    </section>
-                )}
-
-                <div className="mt-10">
-                    <LogoutButton />
+                    </div>
                 </div>
             </main>
         </>
+    );
+}
+
+async function OrganizerArea() {
+    const { upcoming, past, bookings } = await loadOrganizerArea();
+    const empty = upcoming.length === 0 && past.length === 0;
+    return (
+        <>
+            <section aria-labelledby="events-heading">
+                <div className="flex flex-wrap items-end justify-between gap-4">
+                    <h2
+                        id="events-heading"
+                        className="text-3xl font-bold tracking-[-0.02em] [font-stretch:85%]"
+                    >
+                        Etkinliklerim
+                    </h2>
+                    <div className="flex gap-2">
+                        <Button variant="outline" asChild>
+                            <Link href="/mekanlar">Mekan bul</Link>
+                        </Button>
+                        <Button asChild>
+                            <Link href="/panel/etkinlik/yeni">
+                                <Plus aria-hidden />
+                                Etkinlik oluştur
+                            </Link>
+                        </Button>
+                    </div>
+                </div>
+
+                {empty ? (
+                    <div className="mt-6 rounded-xl border border-dashed bg-card px-6 py-12 text-center">
+                        <CalendarPlus className="mx-auto size-10 text-primary" aria-hidden />
+                        <h3 className="mt-4 text-xl font-semibold">İlk etkinliğini kur</h3>
+                        <p className="mx-auto mt-2 max-w-md leading-relaxed text-muted-foreground">
+                            Bir mekanın boş saatini ayır ya da kendi adresini yaz; biletleri
+                            tanımla, yayınla. Paylaşacağın bağlantı hazır olur.
+                        </p>
+                    </div>
+                ) : (
+                    <>
+                        {upcoming.length > 0 ? (
+                            <CardGrid cards={upcoming} />
+                        ) : (
+                            <p className="mt-6 text-muted-foreground">Yaklaşan etkinliğin yok.</p>
+                        )}
+                        {past.length > 0 && (
+                            <details className="group mt-8">
+                                <summary className="cursor-pointer font-medium text-muted-foreground select-none hover:text-foreground">
+                                    Geçmiş etkinlikler ({past.length})
+                                </summary>
+                                <CardGrid cards={past} muted />
+                            </details>
+                        )}
+                    </>
+                )}
+            </section>
+
+            {bookings.length > 0 && (
+                <section id="rezervasyonlar" aria-labelledby="bookings-heading" className="mt-14">
+                    <h2 id="bookings-heading" className="mb-4 text-2xl font-semibold">
+                        Mekan rezervasyonların
+                    </h2>
+                    <MyBookings bookings={bookings} />
+                </section>
+            )}
+        </>
+    );
+}
+
+function CardGrid({ cards, muted }: { cards: EventCardView[]; muted?: boolean }) {
+    return (
+        <ul className="mt-6 grid gap-5 sm:grid-cols-2">
+            {cards.map(({ event, place }) => (
+                <li key={event.id}>
+                    <EventCard
+                        href={`/e/${event.slug}`}
+                        title={event.title ?? ""}
+                        startsAt={event.startsAt ?? ""}
+                        endsAt={event.endsAt ?? ""}
+                        place={place}
+                        muted={muted || event.status === "CANCELLED"}
+                        badge={<EventStatusBadge status={event.status} />}
+                    />
+                </li>
+            ))}
+        </ul>
+    );
+}
+
+function BecomeOrganizer() {
+    return (
+        <section
+            aria-labelledby="organizer-heading"
+            className="rounded-xl border bg-card px-6 py-10 sm:px-10"
+        >
+            <CalendarPlus className="size-10 text-primary" aria-hidden />
+            <h2 id="organizer-heading" className="mt-4 text-2xl font-semibold">
+                Kendi etkinliğini düzenle
+            </h2>
+            <p className="mt-2 mb-6 max-w-prose leading-relaxed text-muted-foreground">
+                Organizatör ol; bir mekanın boş saatini ayır ya da kendi adresinde buluşma kur,
+                biletleri ve kayıt formunu tanımla. Ücretsiz.
+            </p>
+            <BecomeOrganizerForm />
+        </section>
+    );
+}
+
+function AreaSkeleton() {
+    return (
+        <div aria-busy aria-label="Etkinlikler yükleniyor">
+            <div className="h-10 w-56 rounded-md bg-muted motion-safe:animate-pulse" />
+            <div className="mt-6 grid gap-5 sm:grid-cols-2">
+                <div className="h-36 rounded-xl bg-muted motion-safe:animate-pulse" />
+                <div className="h-36 rounded-xl bg-muted motion-safe:animate-pulse" />
+            </div>
+        </div>
     );
 }

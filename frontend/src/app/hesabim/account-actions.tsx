@@ -1,5 +1,6 @@
 "use client";
 
+import { LogOut } from "lucide-react";
 import { useActionState } from "react";
 import { becomeOrganizerAction, logoutAction } from "@/auth/actions";
 import { FormErrors, SubmitButton } from "@/components/form-parts";
@@ -20,7 +21,8 @@ export function BecomeOrganizerForm() {
 export function LogoutButton() {
     return (
         <form action={logoutAction}>
-            <Button type="submit" variant="outline">
+            <Button type="submit" variant="ghost" className="w-full justify-start">
+                <LogOut aria-hidden />
                 Çıkış yap
             </Button>
         </form>

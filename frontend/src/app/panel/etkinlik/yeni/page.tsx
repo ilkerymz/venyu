@@ -15,7 +15,7 @@ export default function NewEventPage({ searchParams }: Props) {
             <SiteHeader />
             <main className="mx-auto max-w-2xl px-5 pt-6 pb-20 sm:px-8">
                 <Link
-                    href="/panel"
+                    href="/hesabim"
                     className="text-sm text-muted-foreground underline-offset-4 hover:underline"
                 >
                     Etkinliklerim

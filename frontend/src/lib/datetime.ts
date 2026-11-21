@@ -24,3 +24,23 @@ export function eventRange(
         overnight,
     };
 }
+
+type Timed = { startsAt?: string; endsAt?: string };
+
+/**
+ * Listeler için: bitişi geçmemiş olanlar yaklaşan (en yakını önce), bitmiş olanlar geçmiş
+ * (en yenisi önce). Süren etkinlik yaklaşanlarda kalır.
+ */
+export function splitByTime<T>(
+    items: T[],
+    timeOf: (item: T) => Timed,
+    now: number,
+): { upcoming: T[]; past: T[] } {
+    const isPast = (item: T) => Date.parse(timeOf(item).endsAt ?? "") < now;
+    const byStart = (a: T, b: T) =>
+        (timeOf(a).startsAt ?? "").localeCompare(timeOf(b).startsAt ?? "");
+    return {
+        upcoming: items.filter((item) => !isPast(item)).sort(byStart),
+        past: items.filter(isPast).sort((a, b) => byStart(b, a)),
+    };
+}
