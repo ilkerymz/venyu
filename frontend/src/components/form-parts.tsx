@@ -17,7 +17,9 @@ export function Field({ label, name, hint, className, id, ...input }: FieldProps
     const hintId = hint ? `${inputId}-hint` : undefined;
     return (
         <div className={cn("grid gap-2", className)}>
-            <Label htmlFor={inputId}>{label}</Label>
+            <Label htmlFor={inputId} className="leading-snug">
+                {label}
+            </Label>
             <Input
                 id={inputId}
                 name={name}
