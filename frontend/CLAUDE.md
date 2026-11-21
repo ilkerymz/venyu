@@ -81,6 +81,8 @@ src/
 - Kapı modu: `qr-scanner` (worker'lı, iOS'ta da çalışır) dinamik import; aynı kod 4 sn içinde tekrar okunursa yok sayılır; elle kod girişi her zaman var. Kamera HTTPS ister (localhost hariç).
 - CSV: UTF-8 BOM + `;` (Excel TR), formül enjeksiyonuna karşı `=+-@` ile başlayan hücrelere `'`.
 - Mekan sahibi paneli `app/mekan/` (korunan yol): mekan listesi `/me` id'si ile `GET /venues` süzülerek; `[id]` layout + sekmeler (Takvim, Rezervasyonlar, Bilgiler), başkasının mekanı 404. Sekmeler ortak `components/section-tabs.tsx`. Sayfa verisinde 401/403/404 kuralı `api/guard.ts`.
+- Organizatörün mekan tarafı: herkese açık `/mekanlar` (semt filtresi) ve `/mekanlar/[id]` (boş saatler, organizatörse "Bu saati ayır" → 24 saatlik hold). Panelde "Mekan rezervasyonların" (`loadMyBookings`: mekan + slot + bağlı etkinlik); onaylı ve kullanılmamış rezervasyon yeni etkinlik formunda "Venyu mekanında" seçeneği olur (`?rezervasyon=<id>`), tarih/saat/yer rezervasyondan.
+- Render sırasında `Date.now()`: bileşen içinde değil (lint), veri fonksiyonunda ve önce cookie/params gibi dinamik bir erişim ya da `connection()` (prerender hatası).
 - Varsayılan Server Component; `"use client"` sadece etkileşim gereken yaprak bileşende.
 - Zaman: backend UTC döner, ekranda her zaman `Europe/Istanbul` (`lib/format.ts`). Para: `formatPrice(amount, currency)`.
 - shadcn bileşeni eklemek: `pnpm dlx shadcn@latest add <ad>`. Claude'un ortamında shadcn registry'si kapalı; orada kaynak `github.com/shadcn-ui/ui` → `apps/v4/registry/new-york-v4/ui/` altından kopyalanır, `from "cn"` → `from "@/lib/utils"`.
