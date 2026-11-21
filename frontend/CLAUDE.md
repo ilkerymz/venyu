@@ -41,6 +41,13 @@ Kök `CLAUDE.md` genel kurallar için geçerli. Bu dosya `frontend/` içindeki �
 - Formlar Server Action + `useActionState` (`src/auth/actions.ts`); hata mesajları `describeError`. React form'u action sonrası sıfırlar: hata durumunda değerleri `state.values` ile geri doldur (şifre hariç).
 - Kullanıcıya görünen yollar Türkçe (`/giris`, `/kayit`, `/hesabim`, `/sifremi-unuttum`); e-posta bağlantılarının yolları backend'den gelir (`/verify-email`, `/reset-password`, …).
 
+## Kayıt akışı (FE-4)
+
+- Etkinlik sayfasındaki "Katıl" paneli: oturum varsa üye kaydı (ücretsiz bilette hemen QR), yoksa misafir kaydı (30 dk e-posta onayı); `requiresAccount` ise girişe yönlendirir. Ücretli biletler F3'e kadar seçilemez.
+- Dinamik form: `lib/form-visibility.ts` backend'in görünürlük kuralının (sırayla, gizli/boş = null, `ticketTypeIds`, hata → gizli) aynısı; `showIf` için npm `jexl`. Karar her zaman sunucuda. Cevap tipleri `lib/form-answers.ts`.
+- Uzun/dinamik formlarda `<form action>` yerine `onSubmit` + `startTransition(dispatch)`: React başarısız gönderimden sonra formu sıfırlamaz.
+- QR: `components/ticket-qr.tsx` (`qrcode` ile senkron SVG; sunucu ve tarayıcıda aynı).
+
 ## Tasarım sistemi
 
 - Vitrin: `/tasarim` (noindex). Yeni temel bileşen eklenince oraya da eklenir.
