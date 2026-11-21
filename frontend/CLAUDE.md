@@ -46,6 +46,7 @@ Kök `CLAUDE.md` genel kurallar için geçerli. Bu dosya `frontend/` içindeki �
 - Etkinlik sayfasındaki "Katıl" paneli: oturum varsa üye kaydı (ücretsiz bilette hemen QR), yoksa misafir kaydı (30 dk e-posta onayı); `requiresAccount` ise girişe yönlendirir. Ücretli biletler F3'e kadar seçilemez.
 - Dinamik form: `lib/form-visibility.ts` backend'in görünürlük kuralının (sırayla, gizli/boş = null, `ticketTypeIds`, hata → gizli) aynısı; `showIf` için npm `jexl`. Karar her zaman sunucuda. Cevap tipleri `lib/form-answers.ts`.
 - Uzun/dinamik formlarda `<form action>` yerine `onSubmit` + `startTransition(dispatch)`: React başarısız gönderimden sonra formu sıfırlamaz.
+- Form oluşturucu (`panel/etkinlik/[id]/form`): saf mantık `lib/form-builder.ts`. Organizatör JEXL yazmaz; koşul seçiminden `answers.<key> <op> <değer>` üretilir (sadece sembol operatörleri). Anahtarlar kalıcı `soru_N` (metinden türetilmez). Çözülemeyen koşul ham korunur. Önizleme kayıt panelinin `QuestionField`'ını kullanır.
 - QR: `components/ticket-qr.tsx` (`qrcode` ile senkron SVG; sunucu ve tarayıcıda aynı).
 
 ## Tasarım sistemi
