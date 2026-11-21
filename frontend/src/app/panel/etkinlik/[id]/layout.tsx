@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { EventStatusBadge } from "@/components/event-status-badge";
 import { SiteHeader } from "@/components/site-header";
 import { formatEventDay, formatTimeRange } from "@/lib/format";
+import { get as getVenue } from "@/api/generated/venue-controller/venue-controller";
 import { loadEventSummary } from "../../data";
 import { EventTabs } from "./event-tabs";
 
@@ -36,7 +37,15 @@ export default function ManageEventLayout({ children, params }: Props) {
 
 async function EventHeader({ params }: { params: Promise<{ id: string }> }) {
     const event = await loadEventSummary((await params).id);
-    const place = event.customAddress?.split("\n")[0];
+    // Mekanlı etkinlikte yer mekandan (ADR-007), adresli etkinlikte adresin ilk satırı.
+    const venue = event.venueId
+        ? await getVenue(event.venueId)
+              .then((r) => r.data)
+              .catch(() => undefined)
+        : undefined;
+    const place = venue
+        ? [venue.name, venue.district].filter(Boolean).join(", ")
+        : event.customAddress?.split("\n")[0];
     return (
         <div className="mt-2">
             <div className="flex flex-wrap items-center gap-3">

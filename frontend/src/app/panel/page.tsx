@@ -5,14 +5,14 @@ import { EventStatusBadge } from "@/components/event-status-badge";
 import { SiteHeader } from "@/components/site-header";
 import { Button } from "@/components/ui/button";
 import { eventDateParts, formatEventDay, formatTimeRange } from "@/lib/format";
-import { loadMyEvents } from "./data";
+import { loadMyBookings, loadMyEvents } from "./data";
+import { MyBookings } from "./my-bookings";
 
 export const metadata: Metadata = { title: "Etkinliklerim", robots: { index: false } };
 
 export default async function PanelPage() {
-    const events = (await loadMyEvents()).toSorted((a, b) =>
-        (b.startsAt ?? "").localeCompare(a.startsAt ?? ""),
-    );
+    const [allEvents, bookings] = await Promise.all([loadMyEvents(), loadMyBookings()]);
+    const events = allEvents.toSorted((a, b) => (b.startsAt ?? "").localeCompare(a.startsAt ?? ""));
 
     return (
         <>
@@ -22,11 +22,16 @@ export default async function PanelPage() {
                     <h1 className="text-4xl font-bold tracking-[-0.02em] [font-stretch:85%] sm:text-5xl">
                         Etkinliklerim
                     </h1>
-                    {events.length > 0 && (
-                        <Button asChild>
-                            <Link href="/panel/etkinlik/yeni">Yeni etkinlik</Link>
+                    <div className="flex gap-2">
+                        <Button variant="outline" asChild>
+                            <Link href="/mekanlar">Mekan bul</Link>
                         </Button>
-                    )}
+                        {events.length > 0 && (
+                            <Button asChild>
+                                <Link href="/panel/etkinlik/yeni">Yeni etkinlik</Link>
+                            </Button>
+                        )}
+                    </div>
                 </div>
 
                 {events.length === 0 ? (
@@ -73,6 +78,14 @@ export default async function PanelPage() {
                             );
                         })}
                     </ul>
+                )}
+                {bookings.length > 0 && (
+                    <section className="mt-12" aria-labelledby="bookings-heading">
+                        <h2 id="bookings-heading" className="mb-4 text-2xl font-semibold">
+                            Mekan rezervasyonların
+                        </h2>
+                        <MyBookings bookings={bookings} />
+                    </section>
                 )}
             </main>
         </>

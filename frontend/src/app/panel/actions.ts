@@ -43,26 +43,34 @@ function formValues(form: FormData): Record<string, string> {
     return values;
 }
 
-export async function createEventAction(_: FormState, form: FormData): Promise<FormState> {
+/** Adresli etkinlik: tarih/saat formdan (mekanlı etkinlikte bu alanlar yok, rezervasyondan gelir). */
+function addressAndTime(form: FormData) {
     const { startsAt, endsAt } = eventRange(
         text(form, "date"),
         text(form, "startTime"),
         text(form, "endTime"),
     );
+    return { customAddress: text(form, "customAddress"), startsAt, endsAt };
+}
+
+/**
+ * Etkinlik iki yerden birinde (ADR-007): onaylı bir mekan rezervasyonunda (zaman ve yer rezervasyondan,
+ * toplam kapasite mekandan) ya da organizatörün yazdığı adreste.
+ */
+export async function createEventAction(_: FormState, form: FormData): Promise<FormState> {
+    const venueBookingId = text(form, "venueBookingId");
+    const common = {
+        title: text(form, "title"),
+        description: optional(text(form, "description")),
+        visibility: visibility(form),
+        requiresAccount: form.get("requiresAccount") === "on",
+    };
     let id: string | undefined;
     try {
-        const { data } = await createEvent(
-            {
-                title: text(form, "title"),
-                description: optional(text(form, "description")),
-                visibility: visibility(form),
-                requiresAccount: form.get("requiresAccount") === "on",
-                customAddress: text(form, "customAddress"),
-                startsAt,
-                endsAt,
-            },
-            { headers: await authHeaders() },
-        );
+        const request = venueBookingId
+            ? { ...common, venueBookingId }
+            : { ...common, ...addressAndTime(form) };
+        const { data } = await createEvent(request, { headers: await authHeaders() });
         id = data.id;
     } catch (error) {
         return { errors: describeError(error), values: formValues(form) };
