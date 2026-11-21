@@ -61,6 +61,11 @@ public class Event {
     @Column(nullable = false, updatable = false)
     private Instant endsAt;
 
+    // Mekanlı etkinlikte toplam bilet kapasitesi sınırı (mekan kapasitesinin kopyası); adresli etkinlikte null.
+    @Column(updatable = false)
+    private Integer capacityLimit;
+
+
     @Version
     private long version;
 
@@ -74,12 +79,19 @@ public class Event {
 
     private Instant cancelledAt;
 
-    public static Event atVenue(UUID organizerId, String slug, EventDetails details,
-                                UUID venueBookingId, UUID venueId, Instant startsAt, Instant endsAt) {
+    public static Event atVenue(UUID organizerId, String slug, EventDetails details, UUID venueBookingId,
+                                UUID venueId, Instant startsAt, Instant endsAt, int venueCapacity) {
         Event event = draft(organizerId, slug, details, startsAt, endsAt);
         event.venueBookingId = venueBookingId;
         event.venueId = venueId;
+        event.capacityLimit = venueCapacity;
         return event;
+    }
+
+    public void requireTicketsEditable() {
+        if (status != EventStatus.DRAFT && status != EventStatus.PUBLISHED) {
+            throw new EventStateException("Bu etkinliğin biletleri artık düzenlenemez.");
+        }
     }
 
     public static Event atAddress(UUID organizerId, String slug, EventDetails details,

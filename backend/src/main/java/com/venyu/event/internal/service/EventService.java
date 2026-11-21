@@ -1,14 +1,13 @@
 package com.venyu.event.internal.service;
 
-import com.venyu.event.internal.domain.Event;
-import com.venyu.event.internal.domain.EventDetails;
-import com.venyu.event.internal.domain.EventLocation;
+import com.venyu.event.internal.domain.*;
 import com.venyu.event.internal.exception.EventConflictException;
 import com.venyu.event.internal.exception.EventNotFoundException;
 import com.venyu.event.internal.exception.InvalidEventException;
 import com.venyu.event.internal.exception.NotEventOrganizerException;
 import com.venyu.event.internal.exception.VenueBookingAlreadyUsedException;
 import com.venyu.event.internal.repository.EventRepository;
+import com.venyu.event.internal.repository.TicketTypeRepository;
 import com.venyu.venue.ConfirmedVenueBooking;
 import com.venyu.venue.VenueBookings;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +16,7 @@ import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -28,6 +28,7 @@ public class EventService {
 
     private final EventRepository events;
     private final VenueBookings venueBookings;
+    private final TicketTypeRepository tickets;
 
     @Transactional
     public Event create(UUID organizerId, EventDetails details, EventLocation location) {
@@ -38,7 +39,7 @@ public class EventService {
                         "Mekan rezervasyonu bulunamadı, onaylanmamış veya sana ait değil."));
                 requireFuture(booking.startsAt());
                 yield Event.atVenue(organizerId, Slugs.generate(), details,
-                    booking.bookingId(), booking.venueId(), booking.startsAt(), booking.endsAt());
+                    booking.bookingId(), booking.venueId(), booking.startsAt(), booking.endsAt(), booking.venueCapacity());
             }
             case EventLocation.AtAddress atAddress -> {
                 if (!atAddress.endsAt().isAfter(atAddress.startsAt())) {
@@ -49,12 +50,17 @@ public class EventService {
                     atAddress.address(), atAddress.startsAt(), atAddress.endsAt());
             }
         };
+        Event saved;
         try {
-            return events.saveAndFlush(event);
+            saved = events.saveAndFlush(event);
         } catch (DataIntegrityViolationException e) {
             // UNIQUE (venue_booking_id). Slug çakışması da buraya düşerdi ama olasılığı ihmal edilebilir.
             throw new VenueBookingAlreadyUsedException();
         }
+        // Her etkinliğin en az bir bilet türü olur (ADR-007): ücretsiz, mekanlıda mekan kapasitesi, adreslide sınırsız.
+        tickets.save(TicketType.define(saved.getId(), new TicketDetails(
+            TicketType.DEFAULT_NAME, null, BigDecimal.ZERO, saved.getCapacityLimit())));
+        return saved;
     }
 
     @Transactional
@@ -88,12 +94,15 @@ public class EventService {
 
     // viewerId null olabilir (anonim). Görünmeyen etkinlik için 404: varlığı da açığa vurulmaz.
     @Transactional(readOnly = true)
-    public Event getBySlug(String slug, UUID viewerId) {
+    public EventWithTickets getBySlug(String slug, UUID viewerId) {
         Event event = events.findBySlug(slug).orElseThrow(EventNotFoundException::new);
         if (event.isVisibleToPublic() || (viewerId != null && event.isOrganizedBy(viewerId))) {
-            return event;
+            return new EventWithTickets(event, tickets.findByEventIdOrderByCreatedAtAsc(event.getId()));
         }
         throw new EventNotFoundException();
+    }
+
+    public record EventWithTickets(Event event, List<TicketType> tickets) {
     }
 
     private Event change(UUID userId, UUID eventId, BiConsumer<Event, Instant> action) {

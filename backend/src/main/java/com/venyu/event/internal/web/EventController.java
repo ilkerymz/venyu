@@ -3,6 +3,7 @@ package com.venyu.event.internal.web;
 import com.venyu.event.internal.service.EventService;
 import com.venyu.event.internal.web.dto.CreateEventRequest;
 import com.venyu.event.internal.web.dto.EventResponse;
+import com.venyu.event.internal.web.dto.PublicEventResponse;
 import com.venyu.event.internal.web.dto.UpdateEventRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -67,8 +68,8 @@ class EventController {
 
     // Public: anonim de çağırabilir; token varsa organizatör kendi taslağını da görebilir.
     @GetMapping("/events/by-slug/{slug}")
-    EventResponse getBySlug(@AuthenticationPrincipal Jwt jwt, @PathVariable String slug) {
-        return EventResponse.from(eventService.getBySlug(slug, jwt == null ? null : userId(jwt)));
+    PublicEventResponse getBySlug(@AuthenticationPrincipal Jwt jwt, @PathVariable String slug) {
+        return PublicEventResponse.from(eventService.getBySlug(slug, jwt == null ? null : userId(jwt)));
     }
 
     private static UUID userId(Jwt jwt) {
