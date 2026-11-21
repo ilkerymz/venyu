@@ -1,6 +1,7 @@
 springdoc:
   writer-with-order-by-keys: true
   writer-with-default-pretty-printer: true
+  default-produces-media-type: application/json
 spring:
   application:
     name: venyu
