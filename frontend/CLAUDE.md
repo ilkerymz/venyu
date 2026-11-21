@@ -1,0 +1,57 @@
+# Frontend — CLAUDE.md
+
+Kök `CLAUDE.md` genel kurallar için geçerli. Bu dosya `frontend/` içindeki çalışmaya özel.
+
+## Çalışma şekli
+
+- **Frontend kodunu Claude yazar, kullanıcı review edip merge eder.** (Backend'de tersi: kodu kullanıcı yazar.)
+- Her PR: kısa plan (K1, K2… kararlar) → onay → `main`'den `feat/fe-<konu>` branch'i → commit'ler → lokal kontroller → PR.
+- Claude `main`'e push etmez ve PR merge etmez. Force-push sadece kendi açık PR branch'ine.
+- PR açıklaması şablonu: ne / neden · kararlar ve trade-off'lar · **review rehberi** (önce bakılacak dosyalar) · ekran görüntüleri · elle deneme adımları · bilerek yapılmayanlar.
+- Üretilmiş kod (API client, shadcn bileşenleri) ayrı commit'te; elle yazılan kod tek başına okunabilsin.
+- Frontend PR'ı backend'e dokunmaz; gerekirse ayrı küçük PR (Claude'un ortamında Maven çalışmaz, testleri kullanıcı koşar).
+
+## Komutlar (`frontend/` içinden)
+
+- `pnpm dev` — http://localhost:3000
+- `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm format:check`, `pnpm build` — CI'daki sırayla aynı; PR'dan önce hepsi yeşil.
+- `pnpm format` — Prettier (Tailwind class sıralaması dahil).
+
+## Yığın
+
+- Next.js 16 (App Router, `cacheComponents`), React 19, TypeScript, pnpm, Node 22.
+- **Next.js 16 eğitim verisindeki sürümden farklı olabilir:** API'ye emin değilsen önce `node_modules/next/dist/docs/` içindeki ilgili sayfayı oku.
+- Tailwind v4 (config dosyası yok, token'lar `src/app/globals.css`), shadcn/ui (Radix), Lucide.
+- Planlanan: TanStack Query + orval (FE-1), React Hook Form + Zod, Motion, MapLibre.
+- Mimari kararlar: `docs/adr/0011-frontend-architecture.md` (BFF, token saklama, client üretimi).
+
+## Tasarım sistemi
+
+- Vitrin: `/tasarim` (noindex). Yeni temel bileşen eklenince oraya da eklenir.
+- Renkler İznik çinisinden: `gece` (metin), `kagit` (zemin), `cini` (eylem), `turkuaz` (olumlu durum), `nar` (kıtlık / hata), `sis` (ikincil metin).
+- **Bileşenlerde ham renk (`#2d3fd3`, `blue-600`) yok;** semantik token: `primary`, `success`, `scarce`, `destructive`, `muted-foreground`…
+- Başlıklar `font-display` (Bricolage Grotesque), arayüz metni `font-sans` (Onest). Fontlar `@fontsource-variable` ile self-host (dış istek yok).
+- Saat, fiyat, sayaç: `nums` utility'si (tabular rakam).
+- İmza bileşenler: `EventTicket` (bilet koçanı), `ThresholdMeter` (minimum katılımcı eşiği, kişi başı kutu).
+- Metin: Türkçe, sade, kullanıcının diliyle. Buton ne yapacağını söyler ("Etkinliği yayınla", "Gönder" değil). Hata mesajı ne olduğunu ve nasıl düzeltileceğini söyler.
+- Kalite tabanı: mobil uyumlu, görünür klavye odağı, `prefers-reduced-motion`, erişilebilir etiketler (`aria-*`, `sr-only`).
+
+## Kod yerleşimi
+
+```
+src/
+├── app/              (route'lar; sayfa dosyaları ince)
+├── components/
+│   ├── ui/           (shadcn kaynakları — sadece gerektiğinde düzenlenir)
+│   └── *.tsx         (Venyu bileşenleri, kebab-case dosya adı)
+└── lib/              (saf yardımcılar: format, utils)
+```
+
+- Varsayılan Server Component; `"use client"` sadece etkileşim gereken yaprak bileşende.
+- Zaman: backend UTC döner, ekranda her zaman `Europe/Istanbul` (`lib/format.ts`). Para: `formatPrice(amount, currency)`.
+- shadcn bileşeni eklemek: `pnpm dlx shadcn@latest add <ad>`. Claude'un ortamında shadcn registry'si kapalı; orada kaynak `github.com/shadcn-ui/ui` → `apps/v4/registry/new-york-v4/ui/` altından kopyalanır, `from "cn"` → `from "@/lib/utils"`.
+
+## Test
+
+- Vitest; test dosyası test ettiği dosyanın yanında (`format.ts` → `format.test.ts`).
+- Saf mantık (biçimleme, form koşulları, hata eşleme) unit test'le; UI akışları ileride Playwright + MSW mock'larıyla.
