@@ -21,12 +21,13 @@ public record EventResponse(
     String customAddress,
     Instant startsAt,
     Instant endsAt,
-    Instant publishedAt) {
+    Instant publishedAt,
+    String cancellationReason) {
 
     public static EventResponse from(Event event) {
         return new EventResponse(event.getId(), event.getSlug(), event.getOrganizerId(), event.getTitle(),
             event.getDescription(), event.getVisibility(), event.isRequiresAccount(), event.getStatus(),
             event.getVenueId(), event.getVenueBookingId(), event.getCustomAddress(), event.getStartsAt(),
-            event.getEndsAt(), event.getPublishedAt());
+            event.getEndsAt(), event.getPublishedAt(), event.getCancellationReason());
     }
 }

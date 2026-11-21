@@ -13,4 +13,8 @@ public enum RegistrationStatus {
 
     // registrations_one_active_per_user / _per_guest index'leriyle aynı olmalı.
     public static final Set<RegistrationStatus> ACTIVE = Set.of(RESERVED, PENDING_THRESHOLD, CONFIRMED, CHECKED_IN);
+
+    // Etkinlik iptal edilince iptal edilenler. CHECKED_IN değişmez (giriş olmuş bir gerçek);
+    // PENDING_THRESHOLD F3'te iadeyle birlikte eklenecek.
+    public static final Set<RegistrationStatus> CANCELLED_WITH_EVENT = Set.of(RESERVED, CONFIRMED);
 }

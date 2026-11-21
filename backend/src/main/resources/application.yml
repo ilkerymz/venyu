@@ -19,6 +19,8 @@ spring:
   modulith:
     events:
       completion-mode: delete
+      # Uygulama yeniden başlarken tamamlanmamış event'leri (listener hata verdi / uygulama çöktü) tekrar yayınla.
+      republish-outstanding-events-on-restart: true
 
 management:
   endpoints:

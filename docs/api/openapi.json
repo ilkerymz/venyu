@@ -362,6 +362,15 @@
             "format" : "uuid"
           }
         } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CancelEventRequest"
+              }
+            }
+          }
+        },
         "responses" : {
           "200" : {
             "content" : {
@@ -1557,6 +1566,16 @@
           }
         }
       },
+      "CancelEventRequest" : {
+        "type" : "object",
+        "properties" : {
+          "reason" : {
+            "type" : "string",
+            "maxLength" : 500,
+            "minLength" : 0
+          }
+        }
+      },
       "CheckInRequest" : {
         "type" : "object",
         "properties" : {
@@ -1621,6 +1640,9 @@
       "EventResponse" : {
         "type" : "object",
         "properties" : {
+          "cancellationReason" : {
+            "type" : "string"
+          },
           "customAddress" : {
             "type" : "string"
           },

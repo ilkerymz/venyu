@@ -20,4 +20,10 @@ public interface EventRepository extends JpaRepository<Event, UUID> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select e from Event e where e.id = :id")
     Optional<Event> findByIdForUpdate(UUID id);
+
+    // Koltuk ayırırken (SELECT ... FOR SHARE): eşzamanlı kayıtlar birbirini beklemez, ama etkinliği değiştiren
+    // UPDATE (örn. iptal) devam eden kayıtların commit olmasını bekler. İptalden sonra gelen kayıt CANCELLED görür.
+    @Lock(LockModeType.PESSIMISTIC_READ)
+    @Query("select e from Event e where e.id = :id")
+    Optional<Event> findByIdForShare(UUID id);
 }

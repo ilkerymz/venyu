@@ -48,4 +48,6 @@ public interface RegistrationRepository extends JpaRepository<Registration, UUID
     // Expiry job: tur başına sınırlı sayıda (registrations_reserved_expiry_idx).
     List<Registration> findTop100ByStatusAndExpiresAtBeforeOrderByExpiresAtAsc(RegistrationStatus status,
                                                                                Instant now);
+
+    List<Registration> findByEventIdAndStatusIn(UUID eventId, Collection<RegistrationStatus> statuses);
 }

@@ -160,6 +160,18 @@ public class Registration {
         if (status != RegistrationStatus.CONFIRMED) {
             throw new RegistrationStateException("Sadece onaylı kayıtlar iptal edilebilir.");
         }
+        markCancelled(now);
+    }
+
+    // Etkinlik iptal edildi: onay bekleyen misafir kaydı da iptal olur (koltuk sayacı tarih olarak kalır, ADR-007).
+    public void cancelWithEvent(Instant now) {
+        if (!RegistrationStatus.CANCELLED_WITH_EVENT.contains(status)) {
+            throw new RegistrationStateException("Bu kayıt etkinlikle birlikte iptal edilemez.");
+        }
+        markCancelled(now);
+    }
+
+    private void markCancelled(Instant now) {
         this.status = RegistrationStatus.CANCELLED;
         this.cancelledAt = now;
         this.updatedAt = now;

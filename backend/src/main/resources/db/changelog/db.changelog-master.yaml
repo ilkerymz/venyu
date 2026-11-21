@@ -31,3 +31,5 @@ databaseChangeLog:
       file: db/changelog/changes/0015-registration-answers.sql
   - include:
       file: db/changelog/changes/0016-tickets-check-in.sql
+  - include:
+      file: db/changelog/changes/0017-event-cancellation-reason.sql
