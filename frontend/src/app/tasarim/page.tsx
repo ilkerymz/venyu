@@ -22,6 +22,7 @@ const colors = [
     { name: "Çini", token: "--cini", hex: "#2D3FD3", use: "Eylem, bağlantı, odak" },
     { name: "Turkuaz", token: "--turkuaz", hex: "#0B8F80", use: "Olumlu durum, eşik doldu" },
     { name: "Nar", token: "--nar", hex: "#D7264E", use: "Kıtlık, hata, iptal" },
+    { name: "Kehribar", token: "--kehribar", hex: "#B45C00", use: "Uyarı, zaten girdi" },
     { name: "Sis", token: "--sis", hex: "#5E6280", use: "İkincil metin" },
 ];
 

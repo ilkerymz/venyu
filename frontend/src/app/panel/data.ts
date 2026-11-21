@@ -1,5 +1,6 @@
 import "server-only";
 import { notFound, redirect } from "next/navigation";
+import { cache } from "react";
 import { isApiError } from "@/api/api-error";
 import {
     get1 as getEvent,
@@ -7,6 +8,7 @@ import {
 } from "@/api/generated/event-controller/event-controller";
 import { list2 as listTicketTypes } from "@/api/generated/ticket-type-controller/ticket-type-controller";
 import { get2 as getForm } from "@/api/generated/form-controller/form-controller";
+import { list3 as listAttendees } from "@/api/generated/attendee-controller/attendee-controller";
 import { authHeaders } from "@/auth/server";
 
 /** 401 → giriş, 403 → organizatör değil (hesap sayfası rolü almayı sunar), 404 → yok ya da başkasının. */
@@ -30,7 +32,7 @@ export async function loadManagedEvent(eventId: string) {
     const headers = await authHeaders();
     return guard(async () => {
         const [event, tickets, form] = await Promise.all([
-            getEvent(eventId, { headers }),
+            loadEventSummary(eventId).then((data) => ({ data })),
             listTicketTypes(eventId, { headers }),
             getForm(eventId, { headers }),
         ]);
@@ -40,4 +42,24 @@ export async function loadManagedEvent(eventId: string) {
             questionCount: form.data.fields?.length ?? 0,
         };
     }, `/panel/etkinlik/${eventId}`);
+}
+
+/** Sekmelerin ortak başlığı ve alt sayfalar aynı istekte etkinliği bir kez yükler. */
+export const loadEventSummary = cache(async (eventId: string) => {
+    const headers = await authHeaders();
+    return guard(
+        async () => (await getEvent(eventId, { headers })).data,
+        `/panel/etkinlik/${eventId}`,
+    );
+});
+
+export async function loadAttendees(eventId: string) {
+    const headers = await authHeaders();
+    return guard(async () => {
+        const [attendees, form] = await Promise.all([
+            listAttendees(eventId, { headers }),
+            getForm(eventId, { headers }),
+        ]);
+        return { attendees: attendees.data ?? [], fields: form.data.fields ?? [] };
+    }, `/panel/etkinlik/${eventId}/katilimcilar`);
 }

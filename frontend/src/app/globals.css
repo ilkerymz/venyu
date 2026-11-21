@@ -4,7 +4,7 @@
 /*
  * Venyu tasarım token'ları.
  * Palet İznik çinisinden: çini mavisi (eylem), turkuaz (olumlu durum),
- * nar (kıtlık / tehlike), gece (metin), kâğıt (zemin).
+ * nar (kıtlık / tehlike), kehribar (uyarı), gece (metin), kâğıt (zemin).
  * Bileşenler ham renk değil, aşağıdaki semantik değişkenleri kullanır.
  */
 :root {
@@ -18,6 +18,7 @@
     --turkuaz-acik: #ddf3ef;
     --nar: #d7264e;
     --nar-acik: #fbe4e9;
+    --kehribar: #b45c00;
     --sis: #5e6280;
     --cizgi: #dcdee8;
 
@@ -40,6 +41,7 @@
     --success-soft: var(--turkuaz-acik);
     --scarce: var(--nar);
     --scarce-soft: var(--nar-acik);
+    --warning: var(--kehribar);
     --border: var(--cizgi);
     --input: #c9ccda;
     --ring: var(--cini);
@@ -66,6 +68,7 @@
     --color-success-soft: var(--success-soft);
     --color-scarce: var(--scarce);
     --color-scarce-soft: var(--scarce-soft);
+    --color-warning: var(--warning);
     --color-border: var(--border);
     --color-input: var(--input);
     --color-ring: var(--ring);

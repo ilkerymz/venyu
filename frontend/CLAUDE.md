@@ -52,7 +52,7 @@ Kök `CLAUDE.md` genel kurallar için geçerli. Bu dosya `frontend/` içindeki �
 ## Tasarım sistemi
 
 - Vitrin: `/tasarim` (noindex). Yeni temel bileşen eklenince oraya da eklenir.
-- Renkler İznik çinisinden: `gece` (metin), `kagit` (zemin), `cini` (eylem), `turkuaz` (olumlu durum), `nar` (kıtlık / hata), `sis` (ikincil metin).
+- Renkler İznik çinisinden: `gece` (metin), `kagit` (zemin), `cini` (eylem), `turkuaz` (olumlu durum), `nar` (kıtlık / hata), `kehribar` (uyarı, `warning`), `sis` (ikincil metin).
 - **Bileşenlerde ham renk (`#2d3fd3`, `blue-600`) yok;** semantik token: `primary`, `success`, `scarce`, `destructive`, `muted-foreground`…
 - Başlıklar `font-display` (Bricolage Grotesque), arayüz metni `font-sans` (Onest). Fontlar `@fontsource-variable` ile self-host (dış istek yok).
 - Saat, fiyat, sayaç: `nums` utility'si (tabular rakam).
@@ -76,6 +76,9 @@ src/
 - **Instant navigation (Next.js 16 dev "Insight" uyarıları sıfır kalmalı):** URL'e (`searchParams`, `params`), cookie'ye ya da önbelleksiz veriye bağlı kısım ya aynı segmentteki `loading.tsx` ile ya da sayfa içinde `<Suspense>` ile sarılır; statik kısım (başlık) dışarıda kalır. `connection()` ile sayfayı dinamik yapma; tarayıcıya özgü değer (bugünün tarihi) istemcide `useSyncExternalStore` ile.
 - Next.js 16'da `error.tsx` prop'u `retry` (`reset` değil); `notFound()`'u yakalayan `try/catch`'te `unstable_rethrow`.
 - Organizatör paneli `app/panel/` altında: veri `panel/data.ts` (401 → giriş, 403 → hesabım, 404 → notFound), işlemler `panel/actions.ts` (Server Action + `refresh()`); id'li action'lar `.bind(null, id)` ile.
+- Etkinlik yönetimi `panel/etkinlik/[id]/layout.tsx`: ortak başlık (Suspense içinde, `loadEventSummary` React `cache` ile istek başına tek) + sekmeler (Genel, Katılımcılar, Kayıt formu, Kapı). Alt sayfalar sadece içerik; her birinin `loading.tsx`'i var.
+- Kapı modu: `qr-scanner` (worker'lı, iOS'ta da çalışır) dinamik import; aynı kod 4 sn içinde tekrar okunursa yok sayılır; elle kod girişi her zaman var. Kamera HTTPS ister (localhost hariç).
+- CSV: UTF-8 BOM + `;` (Excel TR), formül enjeksiyonuna karşı `=+-@` ile başlayan hücrelere `'`.
 - Varsayılan Server Component; `"use client"` sadece etkileşim gereken yaprak bileşende.
 - Zaman: backend UTC döner, ekranda her zaman `Europe/Istanbul` (`lib/format.ts`). Para: `formatPrice(amount, currency)`.
 - shadcn bileşeni eklemek: `pnpm dlx shadcn@latest add <ad>`. Claude'un ortamında shadcn registry'si kapalı; orada kaynak `github.com/shadcn-ui/ui` → `apps/v4/registry/new-york-v4/ui/` altından kopyalanır, `from "cn"` → `from "@/lib/utils"`.
