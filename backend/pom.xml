@@ -31,6 +31,7 @@
 		<spring-modulith.version>2.1.1</spring-modulith.version>
 		<shedlock.version>7.9.0</shedlock.version>
         <springdoc.version>3.1.1</springdoc.version>
+        <commons-jexl.version>3.6.1</commons-jexl.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -153,6 +154,11 @@
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
             <version>${springdoc.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-jexl3</artifactId>
+            <version>${commons-jexl.version}</version>
         </dependency>
 	</dependencies>
 	<dependencyManagement>

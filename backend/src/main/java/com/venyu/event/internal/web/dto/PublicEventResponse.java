@@ -10,7 +10,9 @@ import java.util.List;
 import java.util.UUID;
 
 // Ziyaretçiye açık görünüm: iç kimlikler (organizerId, venueBookingId) ve satış sayıları yok.
+// id gizli değil: kayıt ve form uçları /events/{id}/... ile çağrılır.
 public record PublicEventResponse(
+    UUID id,
     String slug,
     String title,
     String description,
@@ -23,7 +25,7 @@ public record PublicEventResponse(
 
     public static PublicEventResponse from(EventWithTickets view) {
         Event event = view.event();
-        return new PublicEventResponse(event.getSlug(), event.getTitle(), event.getDescription(),
+        return new PublicEventResponse(event.getId(), event.getSlug(), event.getTitle(), event.getDescription(),
             event.isRequiresAccount(), event.getVenueId(), event.getCustomAddress(), event.getStartsAt(),
             event.getEndsAt(), view.tickets().stream().map(PublicTicket::from).toList());
     }

@@ -377,6 +377,68 @@
         "tags" : [ "event-controller" ]
       }
     },
+    "/events/{eventId}/form" : {
+      "get" : {
+        "operationId" : "get_2",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "eventId",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/FormResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "form-controller" ]
+      },
+      "put" : {
+        "operationId" : "save",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "eventId",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/FormRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/FormResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "form-controller" ]
+      }
+    },
     "/events/{eventId}/invitations" : {
       "get" : {
         "operationId" : "list_3",
@@ -1430,6 +1492,85 @@
           }
         }
       },
+      "FormField" : {
+        "type" : "object",
+        "properties" : {
+          "choice" : {
+            "type" : "boolean"
+          },
+          "key" : {
+            "type" : "string",
+            "minLength" : 1,
+            "pattern" : "[a-z][a-z0-9_]{0,39}"
+          },
+          "label" : {
+            "type" : "string",
+            "maxLength" : 200,
+            "minLength" : 0
+          },
+          "options" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string",
+              "maxLength" : 100,
+              "minLength" : 0
+            },
+            "maxItems" : 50,
+            "minItems" : 0
+          },
+          "required" : {
+            "type" : "boolean"
+          },
+          "showIf" : {
+            "type" : "string",
+            "maxLength" : 500,
+            "minLength" : 0
+          },
+          "ticketTypeIds" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string",
+              "format" : "uuid"
+            },
+            "maxItems" : 20,
+            "minItems" : 0
+          },
+          "type" : {
+            "type" : "string",
+            "enum" : [ "TEXT", "LONG_TEXT", "NUMBER", "BOOLEAN", "SINGLE_CHOICE", "MULTI_CHOICE" ]
+          }
+        },
+        "required" : [ "key", "label", "type" ]
+      },
+      "FormRequest" : {
+        "type" : "object",
+        "properties" : {
+          "fields" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/FormField"
+            },
+            "maxItems" : 50,
+            "minItems" : 0
+          }
+        },
+        "required" : [ "fields" ]
+      },
+      "FormResponse" : {
+        "type" : "object",
+        "properties" : {
+          "fields" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/FormField"
+            }
+          },
+          "version" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        }
+      },
       "GuestRegistrationRequest" : {
         "type" : "object",
         "properties" : {
@@ -1654,6 +1795,10 @@
           "endsAt" : {
             "type" : "string",
             "format" : "date-time"
+          },
+          "id" : {
+            "type" : "string",
+            "format" : "uuid"
           },
           "requiresAccount" : {
             "type" : "boolean"

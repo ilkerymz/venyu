@@ -29,7 +29,7 @@ public class SecurityConfig {
                     .requestMatchers("/auth/**", "/actuator/health/**", "/error").permitAll()
                     .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                     .requestMatchers(HttpMethod.GET, "/venues", "/venues/*", "/venues/*/slots",
-                        "/events/by-slug/*").permitAll()
+                        "/events/by-slug/*", "/events/*/form").permitAll()
                     // Misafir kaydı ve e-posta onayı (F2-4): hesapsız akış.
                     .requestMatchers(HttpMethod.POST, "/events/*/registrations/guest", "/registrations/confirm",
                         "/invitations/preview", "/invitations/accept/guest").permitAll()
