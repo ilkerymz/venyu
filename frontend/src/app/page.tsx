@@ -1,7 +1,6 @@
 import { EventTicket } from "@/components/event-ticket";
 import { Button } from "@/components/ui/button";
 import { SiteHeader } from "@/components/site-header";
-import { Wordmark } from "@/components/wordmark";
 
 const steps = [
     {
@@ -97,11 +96,6 @@ export default function HomePage() {
                     </div>
                 </section>
             </main>
-
-            <footer className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-5 py-10 text-sm text-muted-foreground sm:px-8">
-                <Wordmark className="text-xl text-foreground" />
-                <p>© 2026 Venyu</p>
-            </footer>
         </>
     );
 }

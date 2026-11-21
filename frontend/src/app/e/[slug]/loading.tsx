@@ -1,4 +1,4 @@
-import { Wordmark } from "@/components/wordmark";
+import { SiteHeader } from "@/components/site-header";
 
 function Block({ className }: { className: string }) {
     return <div className={`rounded-md bg-muted motion-safe:animate-pulse ${className}`} />;
@@ -7,9 +7,7 @@ function Block({ className }: { className: string }) {
 export default function Loading() {
     return (
         <>
-            <header className="mx-auto max-w-6xl px-5 py-5 sm:px-8">
-                <Wordmark />
-            </header>
+            <SiteHeader />
             <main
                 aria-busy
                 aria-label="Etkinlik yükleniyor"
