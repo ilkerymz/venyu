@@ -1,10 +1,9 @@
-import { MapPin } from "lucide-react";
 import type { Metadata } from "next";
 import { unstable_rethrow } from "next/navigation";
 import { SiteHeader } from "@/components/site-header";
-import { eventDateParts, formatEventDay, formatTimeRange } from "@/lib/format";
 import { loadOwnedEvent, loadPublicEvent, loadRegistrationContext } from "./data";
-import { OrganizerBar } from "./organizer-bar";
+import { OrganizerBar } from "@/components/organizer-bar";
+import { EventHero } from "@/components/event-hero";
 import { MyTicket } from "./my-ticket";
 import { RegistrationPanel } from "@/components/registration-panel";
 import { registerAction } from "./actions";
@@ -36,7 +35,6 @@ export default async function PublicEventPage({ params }: Props) {
     ]);
     const startsAt = event.startsAt ?? "";
     const endsAt = event.endsAt ?? "";
-    const date = eventDateParts(startsAt);
     // Başlıkta kısa yer adı; tam adres "Konum" bölümünde.
     const place = venue
         ? [venue.name, venue.district].filter(Boolean).join(", ")
@@ -47,40 +45,16 @@ export default async function PublicEventPage({ params }: Props) {
     return (
         <>
             <SiteHeader />
-            {owned && <OrganizerBar event={owned} />}
+            {owned && <OrganizerBar event={owned} publish className="pt-6" />}
 
             <main className="mx-auto grid max-w-6xl gap-10 px-5 pt-4 pb-20 sm:px-8 lg:grid-cols-[1fr_22rem] lg:gap-12 lg:pt-8">
                 <div className="min-w-0">
-                    <div className="drop-shadow-[0_18px_30px_rgb(21_23_46/0.12)]">
-                        <div className="flex overflow-hidden rounded-xl bg-card ticket-cut">
-                            <div className="flex w-20 shrink-0 flex-col items-center justify-center bg-primary py-6 text-primary-foreground sm:w-24">
-                                <span className="font-display text-4xl leading-none font-bold nums sm:text-5xl">
-                                    {date.day}
-                                </span>
-                                <span className="mt-1 text-sm font-medium">{date.month}</span>
-                                <span className="text-xs text-primary-foreground/70">
-                                    {date.weekday}
-                                </span>
-                            </div>
-                            <div className="min-w-0 flex-1 border-l-2 border-dashed border-border p-6 sm:p-8">
-                                <h1 className="text-3xl leading-[1.05] font-bold tracking-[-0.02em] [font-stretch:85%] sm:text-5xl">
-                                    {event.title}
-                                </h1>
-                                <p className="mt-4 text-base text-muted-foreground sm:text-lg">
-                                    {formatEventDay(startsAt)},{" "}
-                                    <span className="nums">
-                                        {formatTimeRange(startsAt, endsAt)}
-                                    </span>
-                                </p>
-                                {place && (
-                                    <p className="mt-1 flex items-center gap-2 text-base text-muted-foreground sm:text-lg">
-                                        <MapPin className="size-4 shrink-0" aria-hidden />
-                                        <span className="truncate">{place}</span>
-                                    </p>
-                                )}
-                            </div>
-                        </div>
-                    </div>
+                    <EventHero
+                        title={event.title ?? ""}
+                        startsAt={startsAt}
+                        endsAt={endsAt}
+                        place={place}
+                    />
 
                     {event.description && (
                         <section className="mt-12">
