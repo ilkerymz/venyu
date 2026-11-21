@@ -1,7 +1,7 @@
 /**
  * BFF proxy'sinin saf yardımcıları (ADR-011). Route handler: `app/api/[...path]/route.ts`.
  * Header'lar allowlist ile geçer: tarayıcının cookie'leri backend'e, backend'in
- * Set-Cookie'si tarayıcıya sızmaz. Token'ı Authorization'a çevirmek FE-3'te eklenecek.
+ * Set-Cookie'si tarayıcıya sızmaz. Authorization header'ını route handler cookie'den kendisi koyar.
  */
 const REQUEST_HEADERS = ["accept", "accept-language", "content-type"];
 const RESPONSE_HEADERS = ["content-type", "cache-control", "location"];

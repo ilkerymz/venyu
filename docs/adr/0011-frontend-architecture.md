@@ -39,3 +39,10 @@ Ayrıca frontend kodunu Claude yazacak, kullanıcı review edecek: Claude'un ort
 - ⚠️ Her istek bir ek atlama yapar (tarayıcı → Next.js → backend). Aynı makinede/ağda çalıştıkları için gecikme küçük; deploy'da Next.js sunucusu ayrı bir süreç (SSR için zaten gerekli).
 - ⚠️ BFF katmanı güvenlik sınırının parçası olur: route handler'lar backend'in hata yanıtlarını (Problem Details) olduğu gibi iletir, kendi iç hatalarını sızdırmaz.
 - ⚠️ orval sürüm yükseltmelerinde üretilen kodun diff'i büyük olabilir; ayrı commit kuralı bunu review'dan ayırır.
+
+## Güncelleme — FE-2 (oturum uygulaması)
+Uygularken iki ayrıntı netleşti; karar değişmedi, yeri değişti:
+- **Yenileme `proxy.ts`'te, istekten önce:** "401 alınca yenile ve tekrarla" yerine, access cookie'si token'dan 30 sn önce düşecek şekilde yazılır (`maxAge = expiresIn - 30`). Cookie yoksa ama refresh cookie'si varsa `proxy.ts` (Next.js 16 middleware'i) isteği işlemeden önce yeniler ve yeni token'ları hem bu isteğe hem tarayıcıya yazar. Böylece Server Component'ler, Server Action'lar ve `/api` proxy'si aynı tazelenmiş token'ı görür; JWT çözmek ve isteği tekrar oynatmak gerekmez.
+- **Tek refresh:** aynı refresh token için uçuştaki istek paylaşılır, bittikten sonra 15 sn aynı sonuç verilir (eski token'la gelen paralel sekmeler yeni token'ları alır). Bellek içi: tek Next.js süreci için doğru; yatay ölçeklemede paylaşılan depo (Redis) veya sticky session gerekir.
+- **Giriş/çıkış Server Action:** form Next.js sunucusuna POST eder, cookie'ler sunucuda yazılır; Next.js Server Action'larda Origin kontrolü yapar (CSRF).
+- Backend'e ulaşılamadığında oturum silinmez; sadece backend refresh token'ı reddederse (401) cookie'ler temizlenir.

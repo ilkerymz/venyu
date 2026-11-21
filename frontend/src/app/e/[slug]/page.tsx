@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { unstable_rethrow } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Wordmark } from "@/components/wordmark";
+import { SiteHeader } from "@/components/site-header";
 import { eventDateParts, formatEventDay, formatPrice, formatTimeRange } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { loadPublicEvent } from "./data";
@@ -41,9 +41,7 @@ export default async function PublicEventPage({ params }: Props) {
 
     return (
         <>
-            <header className="mx-auto max-w-6xl px-5 py-5 sm:px-8">
-                <Wordmark />
-            </header>
+            <SiteHeader />
 
             <main className="mx-auto grid max-w-6xl gap-10 px-5 pt-4 pb-20 sm:px-8 lg:grid-cols-[1fr_22rem] lg:gap-12 lg:pt-8">
                 <div className="min-w-0">

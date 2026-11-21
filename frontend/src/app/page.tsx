@@ -1,5 +1,6 @@
 import { EventTicket } from "@/components/event-ticket";
 import { Button } from "@/components/ui/button";
+import { SiteHeader } from "@/components/site-header";
 import { Wordmark } from "@/components/wordmark";
 
 const steps = [
@@ -24,12 +25,11 @@ const steps = [
 export default function HomePage() {
     return (
         <>
-            <header className="mx-auto flex max-w-6xl items-center justify-between px-5 py-5 sm:px-8">
-                <Wordmark />
-                <Button variant="ghost" asChild>
+            <SiteHeader>
+                <Button variant="ghost" asChild className="hidden sm:inline-flex">
                     <a href="#nasil-calisir">Nasıl çalışır</a>
                 </Button>
-            </header>
+            </SiteHeader>
 
             <main>
                 <section className="mx-auto grid max-w-6xl items-center gap-14 px-5 pt-10 pb-20 sm:px-8 lg:grid-cols-[1.1fr_1fr] lg:gap-10 lg:pt-16 lg:pb-28">
