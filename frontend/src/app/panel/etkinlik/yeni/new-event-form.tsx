@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useSyncExternalStore } from "react";
 import { Field, FormErrors, SubmitButton } from "@/components/form-parts";
 import { createEventAction } from "../../actions";
 import {
@@ -10,7 +10,13 @@ import {
     VisibilityField,
 } from "../../event-fields";
 
-export function NewEventForm({ today }: { today: string }) {
+/** Bugünün tarihi (İstanbul) sadece tarayıcıda hesaplanır; sayfa böylece tamamen statik kalır. */
+const noop = () => () => {};
+const istanbulToday = () =>
+    new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Istanbul" }).format(new Date());
+
+export function NewEventForm() {
+    const today = useSyncExternalStore(noop, istanbulToday, () => undefined);
     const [state, action] = useActionState(createEventAction, {});
     const v = state.values ?? {};
     return (
