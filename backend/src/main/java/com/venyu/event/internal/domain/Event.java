@@ -82,6 +82,8 @@ public class Event {
 
     private Instant cancelledAt;
 
+    private String cancellationReason;
+
     public static Event atVenue(UUID organizerId, String slug, EventDetails details, UUID venueBookingId,
                                 UUID venueId, Instant startsAt, Instant endsAt, int venueCapacity) {
         Event event = draft(organizerId, slug, details, startsAt, endsAt);
@@ -135,12 +137,13 @@ public class Event {
         this.updatedAt = now;
     }
 
-    public void cancel(Instant now) {
+    public void cancel(Instant now, String reason) {
         if (status != EventStatus.DRAFT && status != EventStatus.PUBLISHED) {
             throw new EventStateException("Bu etkinlik iptal edilemez.");
         }
         this.status = EventStatus.CANCELLED;
         this.cancelledAt = now;
+        this.cancellationReason = reason == null || reason.isBlank() ? null : reason.strip();
         this.updatedAt = now;
     }
 

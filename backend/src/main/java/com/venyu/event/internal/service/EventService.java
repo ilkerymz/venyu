@@ -1,5 +1,6 @@
 package com.venyu.event.internal.service;
 
+import com.venyu.event.EventCancelled;
 import com.venyu.event.internal.domain.*;
 import com.venyu.event.internal.exception.EventConflictException;
 import com.venyu.event.internal.exception.EventNotFoundException;
@@ -11,6 +12,7 @@ import com.venyu.event.internal.repository.TicketTypeRepository;
 import com.venyu.venue.ConfirmedVenueBooking;
 import com.venyu.venue.VenueBookings;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
@@ -29,6 +31,7 @@ public class EventService {
     private final EventRepository events;
     private final VenueBookings venueBookings;
     private final TicketTypeRepository tickets;
+    private final ApplicationEventPublisher publisher;
 
     @Transactional
     public Event create(UUID organizerId, EventDetails details, EventLocation location) {
@@ -73,9 +76,13 @@ public class EventService {
         return change(userId, eventId, Event::publish);
     }
 
+    // Kayıtları registration iptal eder (EventCancelled dinleyicisi): event → registration çağrısı döngü olurdu.
     @Transactional
-    public Event cancel(UUID userId, UUID eventId) {
-        return change(userId, eventId, Event::cancel);
+    public Event cancel(UUID userId, UUID eventId, String reason) {
+        Event event = change(userId, eventId, (e, now) -> e.cancel(now, reason));
+        publisher.publishEvent(new EventCancelled(event.getId(), event.getTitle(), event.getStartsAt(),
+            event.getCancellationReason(), event.getCancelledAt()));
+        return event;
     }
 
     @Transactional(readOnly = true)

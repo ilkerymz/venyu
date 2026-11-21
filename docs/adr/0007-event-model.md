@@ -40,4 +40,5 @@ F2'de etkinlik, bilet ve kayıt akışları geliyor. Venyu tamamen dinamik bir o
 - ⚠️ Event → venue senkron bağımlılığı: venue modülü servise ayrılırsa bu çağrı ağ üzerinden yapılır (gecikme, hata yönetimi).
 - ⚠️ Registration → event envanter çağrısı bugün aynı transaction'da atomik; modüller ayrı servis olursa saga gerekir.
 - ⚠️ İptal edilen mekanlı etkinliğin rezervasyonu yeni etkinlikte kullanılamaz (unique). Rezervasyonun serbest bırakılması / mekana bildirim ayrı bir iş.
-- ⚠️ Etkinlik iptalinde katılımcılara bildirim ve (F3'te) iade henüz yok.
+- ✅ (F2-7) Etkinlik iptali `EventCancelled` olarak yayınlanır; registration aktif kayıtları (RESERVED, CONFIRMED) iptal eder ve katılımcı başına bildirim yayınlar (idempotent, outbox). Kayıt ↔ iptal yarışı `TicketInventory.reserve`'de etkinlik satırının `FOR SHARE` ile okunmasıyla kapatıldı. İade F3'te.
+- ⚠️ İptal akışının otomatik testleri yok (bilinçli teknik borç, F3'ten önce).

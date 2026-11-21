@@ -1,10 +1,7 @@
 package com.venyu.event.internal.web;
 
 import com.venyu.event.internal.service.EventService;
-import com.venyu.event.internal.web.dto.CreateEventRequest;
-import com.venyu.event.internal.web.dto.EventResponse;
-import com.venyu.event.internal.web.dto.PublicEventResponse;
-import com.venyu.event.internal.web.dto.UpdateEventRequest;
+import com.venyu.event.internal.web.dto.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -50,8 +47,10 @@ class EventController {
 
     @PostMapping("/events/{eventId}/cancel")
     @PreAuthorize("hasRole('ORGANIZER')")
-    EventResponse cancel(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID eventId) {
-        return EventResponse.from(eventService.cancel(userId(jwt), eventId));
+    EventResponse cancel(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID eventId,
+                         @Valid @RequestBody(required = false) CancelEventRequest request) {
+        String reason = request == null ? null : request.reason();
+        return EventResponse.from(eventService.cancel(userId(jwt), eventId, reason));
     }
 
     @GetMapping("/events/{eventId}")

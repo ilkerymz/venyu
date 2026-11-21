@@ -27,7 +27,8 @@ class TicketInventoryService implements TicketInventory {
     @Override
     @Transactional
     public TicketReservation reserve(UUID eventId, UUID ticketTypeId, ReservationContext context) {
-        Optional<Event> found = events.findById(eventId);
+        // FOR SHARE: kayıt ↔ iptal yarışı kapanır (iptal, bu transaction bitene kadar bekler; ADR-007).
+        Optional<Event> found = events.findByIdForShare(eventId);
         if (found.isEmpty()) {
             return new TicketReservation.NotFound();
         }
