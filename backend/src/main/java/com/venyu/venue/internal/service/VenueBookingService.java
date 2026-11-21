@@ -1,5 +1,6 @@
 package com.venyu.venue.internal.service;
 
+import com.venyu.venue.internal.domain.BookingStatus;
 import com.venyu.venue.internal.domain.VenueBooking;
 import com.venyu.venue.internal.domain.VenueSlot;
 import com.venyu.venue.internal.exception.BookingConflictException;
@@ -67,6 +68,11 @@ public class VenueBookingService {
     @Transactional(readOnly = true)
     public List<VenueBooking> listForOrganizer(UUID organizerId) {
         return bookings.findByOrganizerIdOrderByCreatedAtDesc(organizerId);
+    }
+
+    @Transactional
+    public int expireHolds() {
+        return bookings.expireHolds(Instant.now(), BookingStatus.HELD, BookingStatus.EXPIRED);
     }
 
     private VenueBooking transition(UUID ownerId, UUID bookingId, BiConsumer<VenueBooking, Instant> action) {
