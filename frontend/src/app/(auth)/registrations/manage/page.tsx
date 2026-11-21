@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import Link from "next/link";
 import { describeError, isApiError } from "@/api/api-error";
 import { manage } from "@/api/generated/registration-controller/registration-controller";
 import { FormErrors } from "@/components/form-parts";
 import { TicketPass } from "@/components/ticket-pass";
 import { formatEventDay, formatTimeRange } from "@/lib/format";
+import { FormSkeleton } from "../../form-skeleton";
 import { AuthHeading } from "../../auth-heading";
 import { MissingTokenNotice } from "../../link-problem";
 import { CancelManagedRegistration } from "./manage-actions";
@@ -15,11 +17,17 @@ export const metadata: Metadata = { title: "Kaydım", robots: { index: false } }
  * Misafirin "yönet" bağlantısı: /registrations/manage?token=… (ADR-010).
  * Görüntüleme yan etkisizdir; sayfa sunucuda yüklenir. İptal ayrı onayla yapılır.
  */
-export default async function ManageRegistrationPage({
-    searchParams,
-}: {
-    searchParams: Promise<{ token?: string }>;
-}) {
+type TokenProps = { searchParams: Promise<{ token?: string }> };
+
+export default function ManageRegistrationPage({ searchParams }: TokenProps) {
+    return (
+        <Suspense fallback={<FormSkeleton />}>
+            <ManageBody searchParams={searchParams} />
+        </Suspense>
+    );
+}
+
+async function ManageBody({ searchParams }: { searchParams: Promise<{ token?: string }> }) {
     const { token } = await searchParams;
     if (!token) {
         return (

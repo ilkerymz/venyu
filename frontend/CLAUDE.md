@@ -73,6 +73,7 @@ src/
 ```
 
 - Route'a özel veri yükleme route klasöründe (`app/e/[slug]/data.ts`); her veri sayfasında `loading.tsx`, `error.tsx`, gerekiyorsa `not-found.tsx`.
+- **Instant navigation (Next.js 16 dev "Insight" uyarıları sıfır kalmalı):** URL'e (`searchParams`, `params`), cookie'ye ya da önbelleksiz veriye bağlı kısım ya aynı segmentteki `loading.tsx` ile ya da sayfa içinde `<Suspense>` ile sarılır; statik kısım (başlık) dışarıda kalır. `connection()` ile sayfayı dinamik yapma; tarayıcıya özgü değer (bugünün tarihi) istemcide `useSyncExternalStore` ile.
 - Next.js 16'da `error.tsx` prop'u `retry` (`reset` değil); `notFound()`'u yakalayan `try/catch`'te `unstable_rethrow`.
 - Organizatör paneli `app/panel/` altında: veri `panel/data.ts` (401 → giriş, 403 → hesabım, 404 → notFound), işlemler `panel/actions.ts` (Server Action + `refresh()`); id'li action'lar `.bind(null, id)` ile.
 - Varsayılan Server Component; `"use client"` sadece etkileşim gereken yaprak bileşende.

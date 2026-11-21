@@ -1,16 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { connection } from "next/server";
 import { SiteHeader } from "@/components/site-header";
 import { NewEventForm } from "./new-event-form";
 
 export const metadata: Metadata = { title: "Yeni etkinlik", robots: { index: false } };
 
-export default async function NewEventPage() {
-    await connection(); // "bugün" istek anında hesaplansın, build anında değil.
-    const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Istanbul" }).format(
-        new Date(),
-    );
+export default function NewEventPage() {
     return (
         <>
             <SiteHeader />
@@ -24,7 +19,7 @@ export default async function NewEventPage() {
                 <h1 className="mt-2 mb-8 text-4xl font-bold tracking-[-0.02em] [font-stretch:85%] sm:text-5xl">
                     Yeni etkinlik
                 </h1>
-                <NewEventForm today={today} />
+                <NewEventForm />
             </main>
         </>
     );
