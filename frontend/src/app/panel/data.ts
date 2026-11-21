@@ -1,7 +1,6 @@
 import "server-only";
-import { notFound, redirect } from "next/navigation";
 import { cache } from "react";
-import { isApiError } from "@/api/api-error";
+import { guard } from "@/api/guard";
 import {
     get1 as getEvent,
     listMine1 as listMyEvents,
@@ -11,18 +10,6 @@ import { get2 as getForm } from "@/api/generated/form-controller/form-controller
 import { list3 as listAttendees } from "@/api/generated/attendee-controller/attendee-controller";
 import { list4 as listInvitations } from "@/api/generated/invitation-controller/invitation-controller";
 import { authHeaders } from "@/auth/server";
-
-/** 401 → giriş, 403 → organizatör değil (hesap sayfası rolü almayı sunar), 404 → yok ya da başkasının. */
-async function guard<T>(load: () => Promise<T>, next: string): Promise<T> {
-    try {
-        return await load();
-    } catch (error) {
-        if (isApiError(error, 401)) redirect(`/giris?next=${encodeURIComponent(next)}`);
-        if (isApiError(error, 403)) redirect("/hesabim");
-        if (isApiError(error, 404)) notFound();
-        throw error;
-    }
-}
 
 export async function loadMyEvents() {
     const headers = await authHeaders();

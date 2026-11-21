@@ -119,6 +119,19 @@ export default async function AccountPage({ searchParams }: Props) {
                     )}
                 </section>
 
+                {roles.includes("VENUE_OWNER") && (
+                    <section className="mt-6 rounded-xl border bg-card p-6">
+                        <h2 className="text-xl font-semibold">Mekanların</h2>
+                        <p className="mt-3 mb-5 leading-relaxed text-muted-foreground">
+                            Boş saatlerini takvime ekle, organizatörlerin rezervasyon taleplerini
+                            yanıtla.
+                        </p>
+                        <Button asChild>
+                            <Link href="/mekan">Mekanlarıma git</Link>
+                        </Button>
+                    </section>
+                )}
+
                 <div className="mt-10">
                     <LogoutButton />
                 </div>
