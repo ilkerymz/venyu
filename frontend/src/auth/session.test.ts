@@ -24,6 +24,8 @@ describe("oturum yardımcıları", () => {
         expect(isProtectedPath("/hesabim")).toBe(true);
         expect(isProtectedPath("/panel/etkinlik/1")).toBe(true);
         expect(isProtectedPath("/hesabimiz")).toBe(false);
+        expect(isProtectedPath("/mekan/abc")).toBe(true);
+        expect(isProtectedPath("/mekanlar")).toBe(false);
         expect(isProtectedPath("/e/abc")).toBe(false);
     });
 });

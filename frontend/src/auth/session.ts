@@ -60,7 +60,7 @@ export function safeNextPath(next: unknown, fallback = "/hesabim"): string {
 }
 
 /** Login gerektiren sayfalar; `proxy.ts` oturumsuz isteği girişe yönlendirir. */
-export const PROTECTED_PATHS = ["/hesabim", "/panel"];
+export const PROTECTED_PATHS = ["/hesabim", "/panel", "/mekan"];
 
 export function isProtectedPath(pathname: string): boolean {
     return PROTECTED_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));
