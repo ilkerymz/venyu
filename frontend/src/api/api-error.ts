@@ -10,6 +10,8 @@ export type ProblemDetail = {
     detail?: string;
     instance?: string;
     errors?: string[];
+    /** Check-in: bilet daha önce okutulduysa ne zaman (AlreadyCheckedInException). */
+    checkedInAt?: string;
 };
 
 export class ApiError extends Error {

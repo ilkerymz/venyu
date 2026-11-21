@@ -2,7 +2,8 @@
 
 import { refresh } from "next/cache";
 import { redirect } from "next/navigation";
-import { describeError } from "@/api/api-error";
+import { describeError, isApiError } from "@/api/api-error";
+import { checkIn } from "@/api/generated/attendee-controller/attendee-controller";
 import {
     cancel1 as cancelEvent,
     create1 as createEvent,
@@ -186,4 +187,31 @@ export async function saveFormAction(
     }
     refresh();
     return { done: true };
+}
+
+export type CheckInResult =
+    | { kind: "ok"; name: string; at?: string }
+    | { kind: "already"; at?: string }
+    | { kind: "invalid"; message: string };
+
+/**
+ * Kapıda bilet okutma (ADR-010): tek koşullu UPDATE, aynı bilet ikinci kez 409 + `checkedInAt`.
+ * Başka etkinliğin ya da olmayan kod 404, iptal edilmiş kayıt veya kapı penceresi dışı 409.
+ */
+export async function checkInAction(eventId: string, ticketCode: string): Promise<CheckInResult> {
+    try {
+        const { data } = await checkIn(
+            eventId,
+            { ticketCode: ticketCode.trim() },
+            { headers: await authHeaders() },
+        );
+        return { kind: "ok", name: data.name ?? "", at: data.checkedInAt };
+    } catch (error) {
+        if (isApiError(error, 409) && error.problem.checkedInAt) {
+            return { kind: "already", at: error.problem.checkedInAt };
+        }
+        if (isApiError(error, 404))
+            return { kind: "invalid", message: "Bu bilet bu etkinliğe ait değil." };
+        return { kind: "invalid", message: describeError(error)[0] };
+    }
 }
