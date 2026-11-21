@@ -57,6 +57,15 @@ jobs:
       - name: Install
         run: pnpm install --frozen-lockfile
 
+      - name: Check API client is up to date
+        run: |
+          pnpm api:generate
+          if [ -n "$(git status --porcelain src/api/generated)" ]; then
+            echo "::error::src/api/generated güncel değil. 'cd frontend && pnpm api:generate' çalıştırıp üretilen client'ı commit'le."
+            git status --porcelain src/api/generated
+            exit 1
+          fi
+
       - name: Format
         run: pnpm format:check
 
