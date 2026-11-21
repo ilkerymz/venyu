@@ -38,15 +38,20 @@ public final class EventFixtures {
             .authorities(new SimpleGrantedAuthority("ROLE_" + role));
     }
 
-    // Taslak, adresli etkinlik; id döner. Otomatik "Genel Katılım" bileti (ücretsiz, sınırsız) oluşur.
+    // Taslak, adresli etkinlik (7 gün sonra, 2 saat); id döner. Otomatik "Genel Katılım" bileti (ücretsiz, sınırsız).
     public String draftEvent(String visibility, boolean requiresAccount) throws Exception {
+        return draftEvent(visibility, requiresAccount, start);
+    }
+
+    // startsAt: örn. check-in penceresi testleri için yakın bir zaman (gelecekte olmalı).
+    public String draftEvent(String visibility, boolean requiresAccount, Instant startsAt) throws Exception {
         return JsonPath.read(mvc.perform(post("/events").with(user(organizer, "ORGANIZER"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
                     {"title": "Test", "visibility": "%s", "requiresAccount": %s, "customAddress": "Moda",
                      "startsAt": "%s", "endsAt": "%s"}
-                    """.formatted(visibility, requiresAccount, start.atOffset(ZoneOffset.UTC),
-                    start.plus(Duration.ofHours(2)).atOffset(ZoneOffset.UTC))))
+                    """.formatted(visibility, requiresAccount, startsAt.atOffset(ZoneOffset.UTC),
+                    startsAt.plus(Duration.ofHours(2)).atOffset(ZoneOffset.UTC))))
             .andExpect(status().isCreated())
             .andReturn().getResponse().getContentAsString(), "$.id");
     }

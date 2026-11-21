@@ -9,7 +9,6 @@ import com.venyu.form.EventForms;
 import com.venyu.registration.InvitationSent;
 import com.venyu.registration.internal.domain.Invitation;
 import com.venyu.registration.internal.domain.Registration;
-import com.venyu.registration.internal.exception.EventOrganizerOnlyException;
 import com.venyu.registration.internal.exception.InvalidInvitationTokenException;
 import com.venyu.registration.internal.exception.InvitationConflictException;
 import com.venyu.registration.internal.exception.RegistrationNotAvailableException;
@@ -40,12 +39,13 @@ public class InvitationService {
     private final RegistrationService registrationService;
     private final EventLookup eventLookup;
     private final EventForms eventForms;
+    private final OrganizerEvents organizerEvents;
     private final ApplicationEventPublisher events;
 
     // Zaten davet edilmiş e-postalar sessizce atlanır (idempotent); dönen liste sadece yeni davetler.
     @Transactional
     public List<Invitation> invite(UUID organizerId, UUID eventId, List<String> emails) {
-        EventSummary event = ownedEvent(organizerId, eventId);
+        EventSummary event = organizerEvents.require(organizerId, eventId);
         if (!event.startsAt().isAfter(Instant.now())) {
             throw new RegistrationNotAvailableException("Etkinlik başladı veya sona erdi.");
         }
@@ -73,7 +73,7 @@ public class InvitationService {
 
     @Transactional(readOnly = true)
     public List<Invitation> list(UUID organizerId, UUID eventId) {
-        ownedEvent(organizerId, eventId);
+        organizerEvents.require(organizerId, eventId);
         return invitations.findByEventIdOrderByCreatedAtAsc(eventId);
     }
 
@@ -121,13 +121,5 @@ public class InvitationService {
     private Invitation findByToken(String rawToken) {
         return invitations.findByTokenHash(SecureTokens.hash(rawToken))
             .orElseThrow(InvalidInvitationTokenException::new);
-    }
-
-    private EventSummary ownedEvent(UUID organizerId, UUID eventId) {
-        EventSummary event = eventLookup.find(eventId).orElseThrow(RegistrationTargetNotFoundException::new);
-        if (!event.isOrganizedBy(organizerId)) {
-            throw new EventOrganizerOnlyException();
-        }
-        return event;
     }
 }

@@ -22,6 +22,13 @@ final class SecureTokens {
         return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
     }
 
+    // QR'daki bilet kodu: 128 bit yeter (tahmin edilemez) ve QR küçük kalsın diye 16 byte (22 karakter).
+    static String ticketCode() {
+        byte[] bytes = new byte[16];
+        RANDOM.nextBytes(bytes);
+        return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
+    }
+
     static String hash(String rawToken) {
         try {
             byte[] digest = MessageDigest.getInstance("SHA-256")
