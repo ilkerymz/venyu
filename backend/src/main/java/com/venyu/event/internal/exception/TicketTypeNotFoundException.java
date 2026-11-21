@@ -8,7 +8,7 @@ public class TicketTypeNotFoundException extends ErrorResponseException {
 
     public TicketTypeNotFoundException() {
         super(HttpStatus.NOT_FOUND,
-            ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, "Bilet Tipi Bulunamadı"),
+            ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, "Bilet Türü Bulunamadı"),
             null);
     }
 }
