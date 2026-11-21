@@ -80,6 +80,7 @@ src/
 - Etkinlik yönetimi `panel/etkinlik/[id]/layout.tsx`: ortak başlık (Suspense içinde, `loadEventSummary` React `cache` ile istek başına tek) + sekmeler (Genel, Katılımcılar, Davetler, Kayıt formu, Kapı). Alt sayfalar sadece içerik; her birinin `loading.tsx`'i var.
 - Kapı modu: `qr-scanner` (worker'lı, iOS'ta da çalışır) dinamik import; aynı kod 4 sn içinde tekrar okunursa yok sayılır; elle kod girişi her zaman var. Kamera HTTPS ister (localhost hariç).
 - CSV: UTF-8 BOM + `;` (Excel TR), formül enjeksiyonuna karşı `=+-@` ile başlayan hücrelere `'`.
+- Mekan sahibi paneli `app/mekan/` (korunan yol): mekan listesi `/me` id'si ile `GET /venues` süzülerek; `[id]` layout + sekmeler (Takvim, Rezervasyonlar, Bilgiler), başkasının mekanı 404. Sekmeler ortak `components/section-tabs.tsx`. Sayfa verisinde 401/403/404 kuralı `api/guard.ts`.
 - Varsayılan Server Component; `"use client"` sadece etkileşim gereken yaprak bileşende.
 - Zaman: backend UTC döner, ekranda her zaman `Europe/Istanbul` (`lib/format.ts`). Para: `formatPrice(amount, currency)`.
 - shadcn bileşeni eklemek: `pnpm dlx shadcn@latest add <ad>`. Claude'un ortamında shadcn registry'si kapalı; orada kaynak `github.com/shadcn-ui/ui` → `apps/v4/registry/new-york-v4/ui/` altından kopyalanır, `from "cn"` → `from "@/lib/utils"`.
