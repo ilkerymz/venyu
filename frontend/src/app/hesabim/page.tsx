@@ -9,6 +9,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { BecomeOrganizerForm, LogoutButton } from "./account-actions";
+import { PhoneVerification } from "./phone-verification";
+import { formatPhone } from "@/lib/phone";
 
 export const metadata: Metadata = { title: "Hesabım", robots: { index: false } };
 
@@ -74,6 +76,24 @@ export default async function AccountPage({ searchParams }: Props) {
                             </dd>
                         )}
                     </dl>
+                </section>
+
+                <section className="mt-6 rounded-xl border bg-card p-6">
+                    <h2 className="text-xl font-semibold">Telefon</h2>
+                    {profile.phoneVerified && profile.phone ? (
+                        <p className="mt-3 flex flex-wrap items-center gap-2">
+                            {formatPhone(profile.phone)}
+                            <Badge className="bg-success-soft text-success">Doğrulandı</Badge>
+                        </p>
+                    ) : (
+                        <>
+                            <p className="mt-3 mb-5 leading-relaxed text-muted-foreground">
+                                Ücretli etkinliklere bilet almak ve ücretli etkinlik düzenlemek için
+                                telefonunu doğrula.
+                            </p>
+                            <PhoneVerification current={profile.phone} />
+                        </>
+                    )}
                 </section>
 
                 <section className="mt-6 rounded-xl border bg-card p-6">
