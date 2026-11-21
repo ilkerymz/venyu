@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
         "out/**",
         "build/**",
         "next-env.d.ts",
+        // orval çıktısı: elle düzenlenmez (pnpm api:generate).
+        "src/api/generated/**",
     ]),
 ]);
 
