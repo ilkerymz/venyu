@@ -1,5 +1,6 @@
 import "server-only";
 import { notFound } from "next/navigation";
+import { connection } from "next/server";
 import { cache } from "react";
 import { guard } from "@/api/guard";
 import { me } from "@/api/generated/me-controller/me-controller";
@@ -39,6 +40,7 @@ export const loadOwnedVenue = cache(async (venueId: string) => {
 });
 
 export async function loadSlots(venueId: string, fromDaysAgo = 0) {
+    await connection(); // "şimdi" istek anına ait; prerender sırasında hesaplanmamalı.
     const from = new Date(Date.now() - fromDaysAgo * DAY).toISOString();
     const to = new Date(Date.now() + SLOT_WINDOW_DAYS * DAY).toISOString();
     return (await listSlots(venueId, { from, to })).data ?? [];
