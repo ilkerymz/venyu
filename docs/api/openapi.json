@@ -377,6 +377,43 @@
         "tags" : [ "event-controller" ]
       }
     },
+    "/events/{eventId}/check-ins" : {
+      "post" : {
+        "operationId" : "checkIn",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "eventId",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CheckInRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AttendeeResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "attendee-controller" ]
+      }
+    },
     "/events/{eventId}/form" : {
       "get" : {
         "operationId" : "get_2",
@@ -441,7 +478,7 @@
     },
     "/events/{eventId}/invitations" : {
       "get" : {
-        "operationId" : "list_3",
+        "operationId" : "list_4",
         "parameters" : [ {
           "in" : "path",
           "name" : "eventId",
@@ -535,6 +572,34 @@
       }
     },
     "/events/{eventId}/registrations" : {
+      "get" : {
+        "operationId" : "list_3",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "eventId",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/AttendeeResponse"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "attendee-controller" ]
+      },
       "post" : {
         "operationId" : "register",
         "parameters" : [ {
@@ -1418,6 +1483,48 @@
         },
         "required" : [ "ticketTypeId", "token" ]
       },
+      "AttendeeResponse" : {
+        "type" : "object",
+        "properties" : {
+          "answers" : {
+            "type" : "object",
+            "additionalProperties" : { }
+          },
+          "checkedInAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "createdAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "email" : {
+            "type" : "string"
+          },
+          "formVersion" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "guest" : {
+            "type" : "boolean"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "registrationId" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "status" : {
+            "type" : "string",
+            "enum" : [ "RESERVED", "PENDING_THRESHOLD", "CONFIRMED", "CHECKED_IN", "EXPIRED", "REFUNDED", "CANCELLED" ]
+          },
+          "ticketTypeId" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        }
+      },
       "BookingResponse" : {
         "type" : "object",
         "properties" : {
@@ -1449,6 +1556,17 @@
             "format" : "uuid"
           }
         }
+      },
+      "CheckInRequest" : {
+        "type" : "object",
+        "properties" : {
+          "ticketCode" : {
+            "type" : "string",
+            "maxLength" : 64,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "ticketCode" ]
       },
       "ConfirmRegistrationRequest" : {
         "type" : "object",
