@@ -133,7 +133,7 @@
     },
     "/auth/register" : {
       "post" : {
-        "operationId" : "register",
+        "operationId" : "register_1",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -352,7 +352,7 @@
     },
     "/events/{eventId}/cancel" : {
       "post" : {
-        "operationId" : "cancel",
+        "operationId" : "cancel_1",
         "parameters" : [ {
           "in" : "path",
           "name" : "eventId",
@@ -402,6 +402,43 @@
           }
         },
         "tags" : [ "event-controller" ]
+      }
+    },
+    "/events/{eventId}/registrations" : {
+      "post" : {
+        "operationId" : "register",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "eventId",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/RegistrationRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RegistrationResponse"
+                }
+              }
+            },
+            "description" : "Created"
+          }
+        },
+        "tags" : [ "registration-controller" ]
       }
     },
     "/events/{eventId}/ticket-types" : {
@@ -560,7 +597,7 @@
     },
     "/me/bookings" : {
       "get" : {
-        "operationId" : "listMine_1",
+        "operationId" : "listMine_2",
         "responses" : {
           "200" : {
             "content" : {
@@ -581,7 +618,7 @@
     },
     "/me/events" : {
       "get" : {
-        "operationId" : "listMine",
+        "operationId" : "listMine_1",
         "responses" : {
           "200" : {
             "content" : {
@@ -642,6 +679,27 @@
         "tags" : [ "phone-verification-controller" ]
       }
     },
+    "/me/registrations" : {
+      "get" : {
+        "operationId" : "listMine",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/RegistrationResponse"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "registration-controller" ]
+      }
+    },
     "/me/roles/organizer" : {
       "post" : {
         "operationId" : "becomeOrganizer",
@@ -651,6 +709,33 @@
           }
         },
         "tags" : [ "me-controller" ]
+      }
+    },
+    "/registrations/{registrationId}/cancel" : {
+      "post" : {
+        "operationId" : "cancel",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "registrationId",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RegistrationResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "registration-controller" ]
       }
     },
     "/venues" : {
@@ -1286,6 +1371,41 @@
             "type" : "string"
           },
           "id" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        }
+      },
+      "RegistrationRequest" : {
+        "type" : "object",
+        "properties" : {
+          "ticketTypeId" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        },
+        "required" : [ "ticketTypeId" ]
+      },
+      "RegistrationResponse" : {
+        "type" : "object",
+        "properties" : {
+          "createdAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "eventId" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "id" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "status" : {
+            "type" : "string",
+            "enum" : [ "RESERVED", "PENDING_THRESHOLD", "CONFIRMED", "CHECKED_IN", "EXPIRED", "REFUNDED", "CANCELLED" ]
+          },
+          "ticketTypeId" : {
             "type" : "string",
             "format" : "uuid"
           }

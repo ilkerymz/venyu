@@ -19,3 +19,5 @@ databaseChangeLog:
       file: db/changelog/changes/0009-events.sql
   - include:
       file: db/changelog/changes/0010-ticket-types.sql
+  - include:
+      file: db/changelog/changes/0011-registrations.sql
