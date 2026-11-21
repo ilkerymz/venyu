@@ -16,12 +16,13 @@ public interface TicketTypeRepository extends JpaRepository<TicketType, UUID> {
     // Bilet etkinliğiyle birlikte aranır: başka etkinliğin bileti, kendi etkinliğinin URL'i üzerinden değiştirilemesin.
     Optional<TicketType> findByIdAndEventId(UUID id, UUID eventId);
 
-    // Overselling koruması (context 5.1): tek atomik ifade, eşzamanlı isteklerde son koltuğu tek kişi alır.
-    @Modifying
+    // flushAutomatically: bekleyen değişiklikler önce DB'ye yazılsın (clear'da kaybolmasın).
+    // clearAutomatically: bulk update sonrası persistence context temizlensin; sonraki okumalar DB'den taze gelsin.
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query("update TicketType t set t.sold = t.sold + 1 where t.id = :id and (t.capacity is null or t.sold < t.capacity)")
     int reserveSeat(UUID id);
 
-    @Modifying
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query("update TicketType t set t.sold = t.sold - 1 where t.id = :id and t.sold > 0")
     int releaseSeat(UUID id);
 }
