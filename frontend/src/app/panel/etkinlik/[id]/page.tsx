@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { EventStatusBadge } from "@/components/event-status-badge";
 import { Notice } from "@/components/form-parts";
+import { Button } from "@/components/ui/button";
 import { SiteHeader } from "@/components/site-header";
 import { formatEventDay, formatTimeRange } from "@/lib/format";
 import { loadManagedEvent } from "../../data";
@@ -26,7 +27,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 
 export default async function ManageEventPage({ params, searchParams }: Props) {
     const [{ id }, { yeni }] = await Promise.all([params, searchParams]);
-    const { event, tickets } = await loadManagedEvent(id);
+    const { event, tickets, questionCount } = await loadManagedEvent(id);
     const active = event.status === "DRAFT" || event.status === "PUBLISHED";
     const place = event.customAddress?.split("\n")[0];
 
@@ -78,6 +79,22 @@ export default async function ManageEventPage({ params, searchParams }: Props) {
                     </Section>
                     <Section title="Biletler">
                         <TicketsSection eventId={id} tickets={tickets} editable={active} />
+                    </Section>
+                    <Section title="Kayıt formu">
+                        <div className="flex flex-wrap items-center justify-between gap-3">
+                            <p className="text-muted-foreground">
+                                {questionCount === 0
+                                    ? "Form yok; katılımcılar sadece bilet seçip kayıt olur."
+                                    : `Kayıt olurken ${questionCount} soru soruluyor.`}
+                            </p>
+                            {active && (
+                                <Button variant="outline" asChild>
+                                    <Link href={`/panel/etkinlik/${id}/form`}>
+                                        {questionCount === 0 ? "Soru ekle" : "Formu düzenle"}
+                                    </Link>
+                                </Button>
+                            )}
+                        </div>
                     </Section>
                     {active && (
                         <Section title="Etkinlik bilgileri">

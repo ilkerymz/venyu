@@ -14,7 +14,13 @@ import {
     add as addTicketType,
     update2 as updateTicketType,
 } from "@/api/generated/ticket-type-controller/ticket-type-controller";
-import type { CreateEventRequestVisibility, TicketTypeRequest } from "@/api/generated/model";
+import { save as saveForm } from "@/api/generated/form-controller/form-controller";
+import type {
+    CreateEventRequestVisibility,
+    FormField,
+    TicketTypeRequest,
+} from "@/api/generated/model";
+import { labelErrors } from "@/lib/form-answers";
 import type { FormState } from "@/auth/actions";
 import { authHeaders } from "@/auth/server";
 import { eventRange } from "@/lib/datetime";
@@ -162,6 +168,21 @@ export async function deleteTicketTypeAction(
         await deleteTicketType(eventId, ticketTypeId, { headers: await authHeaders() });
     } catch (error) {
         return { errors: describeError(error) };
+    }
+    refresh();
+    return { done: true };
+}
+
+/** Formun tamamı kaydedilir; backend her kaydetmede yeni versiyon açar, boş liste formu kaldırır (ADR-009). */
+export async function saveFormAction(
+    eventId: string,
+    _: FormState,
+    fields: FormField[],
+): Promise<FormState> {
+    try {
+        await saveForm(eventId, { fields }, { headers: await authHeaders() });
+    } catch (error) {
+        return { errors: labelErrors(describeError(error), fields) };
     }
     refresh();
     return { done: true };
