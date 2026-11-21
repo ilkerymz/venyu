@@ -80,8 +80,26 @@ class RegistrationTests {
 
         mvc.perform(get("/me/registrations").with(user(participant, "PARTICIPANT")))
             .andExpect(jsonPath("$.length()").value(1))
-            .andExpect(jsonPath("$[0].eventId").value(event.eventId()));
+            .andExpect(jsonPath("$[0].eventId").value(event.eventId()))
+            .andExpect(jsonPath("$[0].event.title").value("Test"))
+            .andExpect(jsonPath("$[0].event.slug").isNotEmpty())
+            .andExpect(jsonPath("$[0].event.customAddress").value("Moda"))
+            .andExpect(jsonPath("$[0].event.cancelled").value(false))
+            .andExpect(jsonPath("$[0].event.publiclyVisible").value(true));
         assertThat(sold(event)).isEqualTo(1);
+    }
+
+    @Test
+    void myRegistrationsShowThatTheEventWasCancelled() throws Exception {
+        Setup event = publishedEvent("PUBLIC", "0", 10);
+        register(participant, event).andExpect(status().isCreated());
+
+        mvc.perform(post("/events/{id}/cancel", event.eventId()).with(user(organizer, "ORGANIZER")))
+            .andExpect(status().isOk());
+
+        // Kaydın kendisi async listener'la iptal edilir; burada etkinliğin durumuna bakıyoruz (anında).
+        mvc.perform(get("/me/registrations").with(user(participant, "PARTICIPANT")))
+            .andExpect(jsonPath("$[0].event.cancelled").value(true));
     }
 
     @Test

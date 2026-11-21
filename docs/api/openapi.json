@@ -941,6 +941,17 @@
         "tags" : [ "venue-booking-controller" ]
       }
     },
+    "/me/email-verification" : {
+      "post" : {
+        "operationId" : "resendEmailVerification",
+        "responses" : {
+          "202" : {
+            "description" : "Accepted"
+          }
+        },
+        "tags" : [ "me-controller" ]
+      }
+    },
     "/me/events" : {
       "get" : {
         "operationId" : "listMine_1",
@@ -1014,7 +1025,7 @@
                 "schema" : {
                   "type" : "array",
                   "items" : {
-                    "$ref" : "#/components/schemas/RegistrationResponse"
+                    "$ref" : "#/components/schemas/MyRegistrationResponse"
                   }
                 }
               }
@@ -1994,6 +2005,49 @@
           }
         }
       },
+      "MyRegistrationResponse" : {
+        "type" : "object",
+        "properties" : {
+          "checkedInAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "createdAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "event" : {
+            "$ref" : "#/components/schemas/RegisteredEvent"
+          },
+          "eventId" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "expiresAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "formVersion" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "id" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "status" : {
+            "type" : "string",
+            "enum" : [ "RESERVED", "PENDING_THRESHOLD", "CONFIRMED", "CHECKED_IN", "EXPIRED", "REFUNDED", "CANCELLED" ]
+          },
+          "ticketCode" : {
+            "type" : "string"
+          },
+          "ticketTypeId" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        }
+      },
       "PasswordResetConfirmRequest" : {
         "type" : "object",
         "properties" : {
@@ -2153,6 +2207,38 @@
             "type" : "string"
           },
           "id" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        }
+      },
+      "RegisteredEvent" : {
+        "type" : "object",
+        "properties" : {
+          "cancelled" : {
+            "type" : "boolean"
+          },
+          "customAddress" : {
+            "type" : "string"
+          },
+          "endsAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "publiclyVisible" : {
+            "type" : "boolean"
+          },
+          "slug" : {
+            "type" : "string"
+          },
+          "startsAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "title" : {
+            "type" : "string"
+          },
+          "venueId" : {
             "type" : "string",
             "format" : "uuid"
           }

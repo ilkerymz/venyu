@@ -26,6 +26,7 @@ import type {
   GuestRegistrationRequest,
   ManageTokenRequest,
   ManagedRegistrationResponse,
+  MyRegistrationResponse,
   RegistrationRequest,
   RegistrationResponse,
 } from "../model";
@@ -251,7 +252,7 @@ export const useRegisterGuest = <TError = unknown, TContext = unknown>(
   return useMutation(getRegisterGuestMutationOptions(options), queryClient);
 };
 export type listMineResponse200 = {
-  data: RegistrationResponse[];
+  data: MyRegistrationResponse[];
   status: 200;
 };
 

@@ -144,6 +144,90 @@ export function useMe<TData = Awaited<ReturnType<typeof me>>, TError = unknown>(
   return withQueryKey(query, queryOptions.queryKey);
 }
 
+export type resendEmailVerificationResponse202 = {
+  data: void;
+  status: 202;
+};
+
+export type resendEmailVerificationResponseSuccess = resendEmailVerificationResponse202 & {
+  headers: Headers;
+};
+export type resendEmailVerificationResponse = resendEmailVerificationResponseSuccess;
+
+export const getResendEmailVerificationUrl = () => {
+  return `/me/email-verification`;
+};
+
+export const resendEmailVerification = async (
+  options?: Parameters<typeof apiFetch>[1],
+): Promise<resendEmailVerificationResponse> => {
+  return apiFetch<resendEmailVerificationResponse>(getResendEmailVerificationUrl(), {
+    ...options,
+    method: "POST",
+  });
+};
+
+export const getResendEmailVerificationMutationKey = () => ["resendEmailVerification"] as const;
+
+export const getResendEmailVerificationMutationOptions = <
+  TError = unknown,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof resendEmailVerification>>,
+    TError,
+    void,
+    TContext
+  >;
+  request?: SecondParameter<typeof apiFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof resendEmailVerification>>,
+  TError,
+  void,
+  TContext
+> => {
+  const mutationKey = getResendEmailVerificationMutationKey();
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation && "mutationKey" in options.mutation && options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof resendEmailVerification>>,
+    void
+  > = () => {
+    return resendEmailVerification(requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type ResendEmailVerificationMutationResult = NonNullable<
+  Awaited<ReturnType<typeof resendEmailVerification>>
+>;
+
+export type ResendEmailVerificationMutationError = unknown;
+
+export const useResendEmailVerification = <TError = unknown, TContext = unknown>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof resendEmailVerification>>,
+      TError,
+      void,
+      TContext
+    >;
+    request?: SecondParameter<typeof apiFetch>;
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<
+  Awaited<ReturnType<typeof resendEmailVerification>>,
+  TError,
+  void,
+  TContext
+> => {
+  return useMutation(getResendEmailVerificationMutationOptions(options), queryClient);
+};
 export type becomeOrganizerResponse204 = {
   data: void;
   status: 204;

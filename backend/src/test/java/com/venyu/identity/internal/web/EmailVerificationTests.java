@@ -10,12 +10,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.modulith.test.ApplicationModuleTest;
 import org.springframework.test.context.event.ApplicationEvents;
 import org.springframework.test.context.event.RecordApplicationEvents;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -41,6 +43,9 @@ class EmailVerificationTests {
 
     @Autowired
     EmailVerificationTokenRepository tokens;
+
+    @Autowired
+    JdbcTemplate jdbc;
 
     @Test
     void registrationPublishesEventAndStoresOnlyTokenHash() throws Exception {
@@ -80,6 +85,36 @@ class EmailVerificationTests {
         verify("").andExpect(status().isBadRequest());
     }
 
+    @Test
+    void resendSendsNewLinkAndInvalidatesTheOldOne() throws Exception {
+        register();
+        String oldToken = publishedEvent().token();
+        pastCooldown();
+
+        resend().andExpect(status().isAccepted());
+
+        assertThat(events.stream(EmailVerificationRequested.class)).hasSize(2);
+        String newToken = events.stream(EmailVerificationRequested.class).toList().getLast().token();
+        verify(oldToken).andExpect(status().isBadRequest());
+        verify(newToken).andExpect(status().isNoContent());
+    }
+
+    @Test
+    void resendWithinCooldownIsRejected() throws Exception {
+        register();
+
+        resend().andExpect(status().isTooManyRequests());
+    }
+
+    @Test
+    void resendForVerifiedEmailIsRejected() throws Exception {
+        register();
+        verify(publishedEvent().token()).andExpect(status().isNoContent());
+        pastCooldown();
+
+        resend().andExpect(status().isConflict());
+    }
+
     private void register() throws Exception {
         mvc.perform(post("/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -99,5 +134,17 @@ class EmailVerificationTests {
 
     private EmailVerificationRequested publishedEvent() {
         return events.stream(EmailVerificationRequested.class).findFirst().orElseThrow();
+    }
+
+    private ResultActions resend() throws Exception {
+        String userId = users.findByEmail(EMAIL).orElseThrow().getId().toString();
+        return mvc.perform(post("/me/email-verification").with(jwt().jwt(j -> j.subject(userId))));
+    }
+
+    // Kayıtta gönderilen ilk e-postayı bir dakikalık beklemenin dışına iter.
+    // Önce flush: token JPA ile kaydedildi, INSERT henüz veritabanına gitmemiş olabilir.
+    private void pastCooldown() {
+        tokens.flush();
+        jdbc.update("UPDATE email_verification_tokens SET created_at = created_at - interval '2 minutes'");
     }
 }
