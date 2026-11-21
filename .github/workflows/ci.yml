@@ -26,3 +26,11 @@ jobs:
 
       - name: Build and test
         run: ./mvnw -B verify
+
+      - name: Check OpenAPI spec is up to date
+        run: |
+            if [ -n "$(git status --porcelain ../docs/api)" ]; then
+              echo "::error::docs/api/openapi.json güncel değil. './mvnw verify' çalıştırıp güncel spec'i commit'le."
+              git diff ../docs/api
+              exit 1
+            fi
