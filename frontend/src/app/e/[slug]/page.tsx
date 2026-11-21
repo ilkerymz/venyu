@@ -1,12 +1,11 @@
 import { MapPin } from "lucide-react";
 import type { Metadata } from "next";
 import { unstable_rethrow } from "next/navigation";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { SiteHeader } from "@/components/site-header";
-import { eventDateParts, formatEventDay, formatPrice, formatTimeRange } from "@/lib/format";
-import { cn } from "@/lib/utils";
-import { loadPublicEvent } from "./data";
+import { eventDateParts, formatEventDay, formatTimeRange } from "@/lib/format";
+import { loadPublicEvent, loadRegistrationContext } from "./data";
+import { MyTicket } from "./my-ticket";
+import { RegistrationPanel } from "./registration-panel";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -37,7 +36,7 @@ export default async function PublicEventPage({ params }: Props) {
         ? [venue.name, venue.district].filter(Boolean).join(", ")
         : (event.customAddress?.split("\n")[0] ?? "");
     const tickets = event.tickets ?? [];
-    const allSoldOut = tickets.length > 0 && tickets.every((t) => t.soldOut);
+    const registration = await loadRegistrationContext(event.id ?? "");
 
     return (
         <>
@@ -105,66 +104,35 @@ export default async function PublicEventPage({ params }: Props) {
                     </section>
                 </div>
 
-                <aside
-                    className="lg:sticky lg:top-8 lg:self-start"
-                    aria-labelledby="tickets-heading"
-                >
+                <aside className="lg:self-start" aria-labelledby="tickets-heading">
                     <div className="rounded-xl border bg-card p-6">
                         <h2 id="tickets-heading" className="text-xl font-semibold">
-                            Biletler
+                            {registration.myRegistration ? "Biletin" : "Katıl"}
                         </h2>
-                        <ul className="mt-4 divide-y">
-                            {tickets.map((ticket) => (
-                                <li
-                                    key={ticket.id}
-                                    className="flex items-start justify-between gap-4 py-4"
-                                >
-                                    <div className="min-w-0">
-                                        <p
-                                            className={cn(
-                                                "font-medium",
-                                                ticket.soldOut && "text-muted-foreground",
-                                            )}
-                                        >
-                                            {ticket.name}
-                                        </p>
-                                        {ticket.description && (
-                                            <p className="mt-1 text-sm text-muted-foreground">
-                                                {ticket.description}
-                                            </p>
-                                        )}
-                                    </div>
-                                    <div className="shrink-0 text-right">
-                                        {ticket.soldOut ? (
-                                            <Badge className="bg-scarce-soft text-scarce">
-                                                Tükendi
-                                            </Badge>
-                                        ) : (
-                                            <span className="font-semibold nums">
-                                                {formatPrice(
-                                                    ticket.price ?? 0,
-                                                    ticket.currency ?? "TRY",
-                                                )}
-                                            </span>
-                                        )}
-                                    </div>
-                                </li>
-                            ))}
-                        </ul>
-
-                        <Button className="mt-2 w-full" size="lg" disabled>
-                            {allSoldOut ? "Biletler tükendi" : "Kayıt ol"}
-                        </Button>
-                        <p className="mt-3 text-sm text-muted-foreground">
-                            {allSoldOut
-                                ? "Bu etkinlik için bilet kalmadı."
-                                : "Bu sayfadan kayıt çok yakında açılıyor."}
-                        </p>
-                        {event.requiresAccount && (
-                            <p className="mt-3 border-t pt-3 text-sm text-muted-foreground">
-                                Bu etkinliğe katılmak için Venyu hesabı gerekiyor.
-                            </p>
-                        )}
+                        <div className="mt-4">
+                            {registration.myRegistration ? (
+                                <MyTicket
+                                    registrationId={registration.myRegistration.id ?? ""}
+                                    ticketCode={registration.myRegistration.ticketCode}
+                                    status={registration.myRegistration.status}
+                                    ticketName={
+                                        tickets.find(
+                                            (t) =>
+                                                t.id === registration.myRegistration?.ticketTypeId,
+                                        )?.name
+                                    }
+                                />
+                            ) : (
+                                <RegistrationPanel
+                                    eventId={event.id ?? ""}
+                                    tickets={tickets}
+                                    fields={registration.fields}
+                                    isMember={registration.isMember}
+                                    requiresAccount={event.requiresAccount ?? false}
+                                    loginHref={`/giris?next=${encodeURIComponent(`/e/${event.slug}`)}`}
+                                />
+                            )}
+                        </div>
                     </div>
                 </aside>
             </main>
