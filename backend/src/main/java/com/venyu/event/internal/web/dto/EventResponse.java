@@ -14,6 +14,7 @@ public record EventResponse(
     String title,
     String description,
     EventVisibility visibility,
+    boolean requiresAccount,
     EventStatus status,
     UUID venueId,
     UUID venueBookingId,
@@ -24,8 +25,8 @@ public record EventResponse(
 
     public static EventResponse from(Event event) {
         return new EventResponse(event.getId(), event.getSlug(), event.getOrganizerId(), event.getTitle(),
-            event.getDescription(), event.getVisibility(), event.getStatus(), event.getVenueId(),
-            event.getVenueBookingId(), event.getCustomAddress(), event.getStartsAt(), event.getEndsAt(),
-            event.getPublishedAt());
+            event.getDescription(), event.getVisibility(), event.isRequiresAccount(), event.getStatus(),
+            event.getVenueId(), event.getVenueBookingId(), event.getCustomAddress(), event.getStartsAt(),
+            event.getEndsAt(), event.getPublishedAt());
     }
 }

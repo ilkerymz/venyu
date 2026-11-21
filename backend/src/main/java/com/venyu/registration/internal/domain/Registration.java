@@ -33,12 +33,24 @@ public class Registration {
     @Column(nullable = false, updatable = false)
     private UUID ticketTypeId;
 
-    @Column(nullable = false, updatable = false)
+    // Kimlik: ya userId (üye) ya guestEmail (misafir). DB'de registrations_one_identity_chk.
+    @Column(updatable = false)
     private UUID userId;
+
+    @Column(updatable = false)
+    private String guestEmail;
+
+    @Column(updatable = false)
+    private String guestName;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private RegistrationStatus status;
+
+    // Sadece onay bekleyen misafir kaydında dolu. Ham token saklanmaz (ADR-004).
+    private String confirmationTokenHash;
+
+    private Instant expiresAt;
 
     @Version
     private long version;
@@ -51,16 +63,62 @@ public class Registration {
 
     private Instant cancelledAt;
 
-    // F2: ücretsiz bilet, kayıt anında onaylı. Ücretli akış (RESERVED → PENDING_THRESHOLD) F3'te.
+    // Üye, ücretsiz bilet: kayıt anında onaylı. Ücretli akış (RESERVED → PENDING_THRESHOLD) F3'te.
     public static Registration confirmed(UUID eventId, UUID ticketTypeId, UUID userId) {
+        Registration registration = create(eventId, ticketTypeId, RegistrationStatus.CONFIRMED);
+        registration.userId = userId;
+        return registration;
+    }
+
+    // Misafir: e-posta onaylanana kadar koltuk expiresAt'e kadar tutulur.
+    public static Registration reservedGuest(UUID eventId, UUID ticketTypeId, String email, String name,
+                                             String tokenHash, Instant expiresAt) {
+        Registration registration = create(eventId, ticketTypeId, RegistrationStatus.RESERVED);
+        registration.guestEmail = email;
+        registration.guestName = name;
+        registration.confirmationTokenHash = tokenHash;
+        registration.expiresAt = expiresAt;
+        return registration;
+    }
+
+    // Davetli misafir: e-postası davet link'iyle kanıtlandı, onay adımı yok (F2-4 K1).
+    public static Registration confirmedGuest(UUID eventId, UUID ticketTypeId, String email, String name) {
+        Registration registration = create(eventId, ticketTypeId, RegistrationStatus.CONFIRMED);
+        registration.guestEmail = email;
+        registration.guestName = name;
+        return registration;
+    }
+
+    private static Registration create(UUID eventId, UUID ticketTypeId, RegistrationStatus status) {
         Registration registration = new Registration();
         registration.eventId = eventId;
         registration.ticketTypeId = ticketTypeId;
-        registration.userId = userId;
-        registration.status = RegistrationStatus.CONFIRMED;
+        registration.status = status;
         registration.createdAt = Instant.now();
         registration.updatedAt = registration.createdAt;
         return registration;
+    }
+
+    public void confirm(Instant now) {
+        if (status == RegistrationStatus.EXPIRED || (status == RegistrationStatus.RESERVED && !expiresAt.isAfter(now))) {
+            throw new RegistrationStateException("Onay süresi doldu. Lütfen tekrar kayıt ol.");
+        }
+        if (status != RegistrationStatus.RESERVED) {
+            throw new RegistrationStateException("Bu kayıt onay beklemiyor.");
+        }
+        this.status = RegistrationStatus.CONFIRMED;
+        this.confirmationTokenHash = null; // tek kullanımlık
+        this.expiresAt = null;
+        this.updatedAt = now;
+    }
+
+    // Token hash'i bilerek silinmez: geç tıklayan misafir "geçersiz link" yerine "süre doldu" görsün.
+    public void expire(Instant now) {
+        if (status != RegistrationStatus.RESERVED) {
+            throw new RegistrationStateException("Sadece onay bekleyen kayıtların süresi dolabilir.");
+        }
+        this.status = RegistrationStatus.EXPIRED;
+        this.updatedAt = now;
     }
 
     public void cancel(Instant now) {

@@ -58,7 +58,7 @@ class TicketInventoryConcurrencyTests {
         tx = new TransactionTemplate(transactionManager);
         Instant start = Instant.now().plus(Duration.ofDays(7));
         eventId = events.save(Event.atAddress(UUID.randomUUID(), "slug-" + UUID.randomUUID(),
-            new EventDetails("Test", null, EventVisibility.PUBLIC), "Adres", start,
+            new EventDetails("Test", null, EventVisibility.PUBLIC, false), "Adres", start,
             start.plus(Duration.ofHours(2)))).getId();
     }
 

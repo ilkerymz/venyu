@@ -3,14 +3,14 @@ package com.venyu.registration.internal.domain;
 import java.util.Set;
 
 public enum RegistrationStatus {
-    RESERVED,          // F3: ödeme bekleniyor
+    RESERVED,          // koltuk tutuluyor, süreli: misafir e-posta onayı (F2-4), F3'te ödeme
     PENDING_THRESHOLD, // F3: ödeme alındı (pre-auth), eşik bekleniyor
     CONFIRMED,
     CHECKED_IN,        // F2-6
-    EXPIRED,
+    EXPIRED,           // RESERVED süresi doldu, koltuk bırakıldı
     REFUNDED,
     CANCELLED;
 
-    // registrations_one_active_per_user index'iyle aynı olmalı.
+    // registrations_one_active_per_user / _per_guest index'leriyle aynı olmalı.
     public static final Set<RegistrationStatus> ACTIVE = Set.of(RESERVED, PENDING_THRESHOLD, CONFIRMED, CHECKED_IN);
 }

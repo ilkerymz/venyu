@@ -11,18 +11,20 @@ import jakarta.validation.constraints.Size;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
+// requiresAccount gönderilmezse false (misafir kaydı açık).
 // Konum: ya venueBookingId ya (customAddress + startsAt + endsAt). Zaman mekanlıda rezervasyondan gelir.
 public record CreateEventRequest(
     @NotBlank @Size(max = 150) String title,
     @Size(max = 5000) String description,
     @NotNull EventVisibility visibility,
+    Boolean requiresAccount,
     UUID venueBookingId,
     @Size(max = 300) String customAddress,
     OffsetDateTime startsAt,
     OffsetDateTime endsAt) {
 
     public EventDetails toDetails() {
-        return new EventDetails(title, description, visibility);
+        return new EventDetails(title, description, visibility, Boolean.TRUE.equals(requiresAccount));
     }
 
     public EventLocation toLocation() {

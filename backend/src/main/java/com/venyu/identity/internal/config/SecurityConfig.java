@@ -26,12 +26,14 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**", "/actuator/health/**", "/error").permitAll()
-                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/venues", "/venues/*", "/venues/*/slots").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/venues", "/venues/*", "/venues/*/slots",
-                                                                    "/events/by-slug/*").permitAll()
-                        .anyRequest().authenticated())
+                    .requestMatchers("/auth/**", "/actuator/health/**", "/error").permitAll()
+                    .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/venues", "/venues/*", "/venues/*/slots",
+                        "/events/by-slug/*").permitAll()
+                    // Misafir kaydı ve e-posta onayı (F2-4): hesapsız akış.
+                    .requestMatchers(HttpMethod.POST, "/events/*/registrations/guest", "/registrations/confirm",
+                        "/invitations/preview", "/invitations/accept/guest").permitAll()
+                    .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
                 .build();
     }
