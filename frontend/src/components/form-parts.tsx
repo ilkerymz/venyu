@@ -12,13 +12,14 @@ type FieldProps = React.ComponentProps<typeof Input> & {
     hint?: string;
 };
 
-export function Field({ label, name, hint, className, ...input }: FieldProps) {
-    const hintId = hint ? `${name}-hint` : undefined;
+export function Field({ label, name, hint, className, id, ...input }: FieldProps) {
+    const inputId = id ?? name;
+    const hintId = hint ? `${inputId}-hint` : undefined;
     return (
         <div className={cn("grid gap-2", className)}>
-            <Label htmlFor={name}>{label}</Label>
+            <Label htmlFor={inputId}>{label}</Label>
             <Input
-                id={name}
+                id={inputId}
                 name={name}
                 aria-describedby={hintId}
                 className="h-11 bg-card"

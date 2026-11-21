@@ -6,6 +6,8 @@ import { authHeaders } from "@/auth/server";
 import { Notice } from "@/components/form-parts";
 import { SiteHeader } from "@/components/site-header";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 import { BecomeOrganizerForm, LogoutButton } from "./account-actions";
 
 export const metadata: Metadata = { title: "Hesabım", robots: { index: false } };
@@ -77,10 +79,14 @@ export default async function AccountPage({ searchParams }: Props) {
                 <section className="mt-6 rounded-xl border bg-card p-6">
                     <h2 className="text-xl font-semibold">Etkinlik düzenle</h2>
                     {isOrganizer ? (
-                        <p className="mt-3 leading-relaxed text-muted-foreground">
-                            Organizatörsün. Etkinlik oluşturma ve yönetme ekranları çok yakında
-                            burada olacak.
-                        </p>
+                        <>
+                            <p className="mt-3 mb-5 leading-relaxed text-muted-foreground">
+                                Etkinliklerini oluştur, biletlerini tanımla ve yayınla.
+                            </p>
+                            <Button asChild>
+                                <Link href="/panel">Etkinliklerime git</Link>
+                            </Button>
+                        </>
                     ) : (
                         <>
                             <p className="mt-3 mb-5 leading-relaxed text-muted-foreground">
