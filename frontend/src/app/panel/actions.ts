@@ -4,6 +4,7 @@ import { refresh } from "next/cache";
 import { redirect } from "next/navigation";
 import { describeError, isApiError } from "@/api/api-error";
 import { checkIn } from "@/api/generated/attendee-controller/attendee-controller";
+import { invite } from "@/api/generated/invitation-controller/invitation-controller";
 import {
     cancel1 as cancelEvent,
     create1 as createEvent,
@@ -214,4 +215,15 @@ export async function checkInAction(eventId: string, ticketCode: string): Promis
             return { kind: "invalid", message: "Bu bilet bu etkinliğe ait değil." };
         return { kind: "invalid", message: describeError(error)[0] };
     }
+}
+
+/** Toplu davet (ADR-008): aynı adrese tekrar göndermek güvenli, backend idempotent. */
+export async function inviteAction(eventId: string, emails: string[]): Promise<FormState> {
+    try {
+        await invite(eventId, { emails }, { headers: await authHeaders() });
+    } catch (error) {
+        return { errors: describeError(error) };
+    }
+    refresh();
+    return { done: true };
 }

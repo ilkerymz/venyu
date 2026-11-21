@@ -9,6 +9,7 @@ import {
 import { list2 as listTicketTypes } from "@/api/generated/ticket-type-controller/ticket-type-controller";
 import { get2 as getForm } from "@/api/generated/form-controller/form-controller";
 import { list3 as listAttendees } from "@/api/generated/attendee-controller/attendee-controller";
+import { list4 as listInvitations } from "@/api/generated/invitation-controller/invitation-controller";
 import { authHeaders } from "@/auth/server";
 
 /** 401 → giriş, 403 → organizatör değil (hesap sayfası rolü almayı sunar), 404 → yok ya da başkasının. */
@@ -62,4 +63,12 @@ export async function loadAttendees(eventId: string) {
         ]);
         return { attendees: attendees.data ?? [], fields: form.data.fields ?? [] };
     }, `/panel/etkinlik/${eventId}/katilimcilar`);
+}
+
+export async function loadInvitations(eventId: string) {
+    const headers = await authHeaders();
+    return guard(
+        async () => (await listInvitations(eventId, { headers })).data ?? [],
+        `/panel/etkinlik/${eventId}/davetler`,
+    );
 }
